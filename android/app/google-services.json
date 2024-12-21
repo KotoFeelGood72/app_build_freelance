@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "721598927062",
+    "firebase_url": "https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "app-freelance-f3dee",
+    "storage_bucket": "app-freelance-f3dee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721598927062:android:a4588de1897151f9c3f977",
+        "android_client_info": {
+          "package_name": "com.work.freelance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACMKoyxUw13HZKOvdkTpQ1td_o-4ywczk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
