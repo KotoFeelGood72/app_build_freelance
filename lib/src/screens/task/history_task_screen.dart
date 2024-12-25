@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
 class HistoryTaskScreen extends ConsumerStatefulWidget {
-  const HistoryTaskScreen({Key? key}) : super(key: key);
+  const HistoryTaskScreen({super.key});
 
   @override
   ConsumerState<HistoryTaskScreen> createState() => _HistoryTaskScreenState();
@@ -20,8 +20,8 @@ class _HistoryTaskScreenState extends ConsumerState<HistoryTaskScreen> {
     super.initState();
     // Загружаем задачи при монтировании экрана
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // ref.read(taskNotifierProvider.notifier).fetchTasks(filters: 'history');
-      ref.read(taskNotifierProvider.notifier).fetchTasks();
+      ref.read(taskNotifierProvider.notifier).fetchTasks(filters: 'history');
+      // ref.read(taskNotifierProvider.notifier).fetchTasks();
     });
   }
 
@@ -30,6 +30,7 @@ class _HistoryTaskScreenState extends ConsumerState<HistoryTaskScreen> {
     final taskState = ref.watch(taskNotifierProvider);
 
     return Container(
+      alignment: Alignment.center,
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
@@ -42,16 +43,19 @@ class _HistoryTaskScreenState extends ConsumerState<HistoryTaskScreen> {
         ),
       ),
       child: taskState.isLoading
-          ? const Center(child: CircularProgressIndicator()) 
+          ? const Center(child: CircularProgressIndicator())
           : taskState.tasks.isEmpty
-              ? const CustomersNoneTasks() 
-              : ListView.builder( 
+              ? const CustomersNoneTasks()
+              : ListView.builder(
                   itemCount: taskState.tasks.length,
                   itemBuilder: (context, index) {
                     final task = taskState.tasks[index];
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0), 
-                      child: CardTask(task: task, onTap: () => (),),
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: CardTask(
+                        task: task,
+                        onTap: () => (),
+                      ),
                     );
                   },
                 ),

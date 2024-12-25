@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
 class OpenTaskScreen extends ConsumerStatefulWidget {
-  const OpenTaskScreen({Key? key}) : super(key: key);
+  const OpenTaskScreen({super.key});
 
   @override
   ConsumerState<OpenTaskScreen> createState() => _OpenTaskScreenState();
@@ -44,28 +44,37 @@ class _OpenTaskScreenState extends ConsumerState<OpenTaskScreen> {
         ),
       ),
       child: taskState.isLoading
-          ? const Center(child: CircularProgressIndicator()) // Показываем загрузку
+          ? const Center(
+              child: CircularProgressIndicator()) // Показываем загрузку
           : taskState.tasks.isEmpty
               ? const CustomersNoneTasks() // Показываем placeholder, если задач нет
-              : ListView.builder( // Отображаем список задач
+              : ListView.builder(
+                  // Отображаем список задач
                   itemCount: taskState.tasks.length,
                   itemBuilder: (context, index) {
                     final task = taskState.tasks[index];
                     return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0), // Отступ снизу
-                  child: CardTask(task: task, onTap: () {
-                      
-                    if (authState.role == 'Customer') {
-                      AutoRouter.of(context).push(
-                        TaskResponseRoute(taskId: task['id'].toString()), // Преобразуем int в String
-                      );
-                    } else {
-                      AutoRouter.of(context).push(
-                        TaskDetailRoute(taskId: task['id'].toString()), // Преобразуем int в String
-                      );
-                    }
-                  },),
-                );
+                      padding:
+                          const EdgeInsets.only(bottom: 16.0), // Отступ снизу
+                      child: CardTask(
+                        task: task,
+                        onTap: () {
+                          if (authState.role == 'Customer') {
+                            AutoRouter.of(context).push(
+                              TaskResponseRoute(
+                                  taskId: task['id']
+                                      .toString()), // Преобразуем int в String
+                            );
+                          } else {
+                            AutoRouter.of(context).push(
+                              TaskDetailRoute(
+                                  taskId: task['id']
+                                      .toString()), // Преобразуем int в String
+                            );
+                          }
+                        },
+                      ),
+                    );
                   },
                 ),
     );

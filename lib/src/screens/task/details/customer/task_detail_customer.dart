@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 
 @RoutePage()
 class TaskDetailCustomerScreen extends StatelessWidget {
+  final String taskId; // Принимаем taskId как параметр
+
+  const TaskDetailCustomerScreen({
+    super.key,
+    required this.taskId, // Обязательный параметр конструктора
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('О задании'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -37,39 +40,44 @@ class TaskDetailCustomerScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'В своём стремлении повысить качество жизни, они забывают, что экономическая повестка сегодняшнего дня обеспечивает широкому кругу (специалистов) участие в формировании переосмысления внешнеэкономических политик.',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  Text(
+                    'ID задания: $taskId', // Отображаем taskId
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Стоимость', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('1000 ₽', style: TextStyle(fontWeight: FontWeight.bold)),
+                    children: [
+                      Text('Стоимость',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('1000 ₽',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Срок выполнения', style: TextStyle(fontWeight: FontWeight.bold)),
+                    children: [
+                      Text('Срок выполнения',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('4 ч'),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Размещено', style: TextStyle(fontWeight: FontWeight.bold)),
+                    children: [
+                      Text('Размещено',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('20 сентября в 20:40'),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Статус', style: TextStyle(fontWeight: FontWeight.bold)),
+                    children: [
+                      Text('Статус',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('Поиск исполнителя'),
                     ],
                   ),
@@ -85,7 +93,8 @@ class TaskDetailCustomerScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text('Заказчик', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('Заказчик',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       const Spacer(),
                       TextButton(
                         onPressed: () {

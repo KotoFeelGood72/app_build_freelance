@@ -19,7 +19,7 @@ class Inputs extends StatelessWidget {
   final bool isMultiline; // Новый параметр для многострочного текста
 
   const Inputs({
-    Key? key,
+    super.key,
     required this.backgroundColor,
     required this.textColor,
     this.rightIcon,
@@ -30,10 +30,11 @@ class Inputs extends StatelessWidget {
     this.fieldType = 'text',
     this.label,
     this.required = false,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 4), // Значение по умолчанию
+    this.padding = const EdgeInsets.symmetric(
+        horizontal: 16, vertical: 4), // Значение по умолчанию
     this.maxLength, // Передача максимальной длины
     this.isMultiline = false, // Значение по умолчанию: однострочный ввод
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +49,20 @@ class Inputs extends StatelessWidget {
       effectiveController = TextEditingController(text: value);
     }
 
-    final Color appliedBackgroundColor = showErrorMessage ? Colors.red[50]! : backgroundColor;
+    final Color appliedBackgroundColor =
+        showErrorMessage ? Colors.red[50]! : backgroundColor;
     final Color appliedTextColor = showErrorMessage ? AppColors.red : textColor;
 
     // Устанавливаем inputFormatters в зависимости от fieldType
     List<TextInputFormatter> inputFormatters = [];
     if (fieldType == 'number') {
-      inputFormatters = [FilteringTextInputFormatter.digitsOnly]; // Только цифры
+      inputFormatters = [
+        FilteringTextInputFormatter.digitsOnly
+      ]; // Только цифры
     }
     if (maxLength != null) {
-      inputFormatters.add(LengthLimitingTextInputFormatter(maxLength)); // Ограничение символов
+      inputFormatters.add(
+          LengthLimitingTextInputFormatter(maxLength)); // Ограничение символов
     }
 
     return Column(
@@ -77,11 +82,11 @@ class Inputs extends StatelessWidget {
                   ),
                 ),
                 if (required) // Отображаем звездочку, если поле обязательное
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4),
                     child: Text(
                       '*',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.red,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -101,7 +106,8 @@ class Inputs extends StatelessWidget {
                 : Border.all(color: AppColors.border),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start, // Для многострочного ввода
+            crossAxisAlignment:
+                CrossAxisAlignment.start, // Для многострочного ввода
             children: [
               Expanded(
                 child: TextField(
@@ -113,7 +119,8 @@ class Inputs extends StatelessWidget {
                           : fieldType == 'phone'
                               ? TextInputType.phone
                               : TextInputType.text,
-                  maxLines: isMultiline ? null : 1, // Поддержка многострочного ввода
+                  maxLines:
+                      isMultiline ? 3 : 1, // Поддержка многострочного ввода
                   style: TextStyle(color: appliedTextColor),
                   inputFormatters: inputFormatters, // Применяем ограничители
                   decoration: InputDecoration(
@@ -122,7 +129,8 @@ class Inputs extends StatelessWidget {
                         : fieldType == 'number'
                             ? 'Введите число'
                             : 'Введите текст',
-                    hintStyle: TextStyle(color: appliedTextColor.withOpacity(0.6)),
+                    hintStyle:
+                        TextStyle(color: appliedTextColor.withOpacity(0.6)),
                     border: InputBorder.none,
                   ),
                 ),

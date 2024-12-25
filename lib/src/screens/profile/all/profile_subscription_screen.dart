@@ -1,4 +1,7 @@
 import 'package:app_build_freelance/router/app_router.gr.dart';
+import 'package:app_build_freelance/src/components/ui/Btn.dart';
+import 'package:app_build_freelance/src/constants/app_colors.dart';
+import 'package:app_build_freelance/src/utils/modal_utils.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
@@ -7,7 +10,8 @@ class ProfileSubscriptionScreen extends StatefulWidget {
   const ProfileSubscriptionScreen({super.key});
 
   @override
-  State<ProfileSubscriptionScreen> createState() => _ProfileSubscriptionScreenState();
+  State<ProfileSubscriptionScreen> createState() =>
+      _ProfileSubscriptionScreenState();
 }
 
 class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
@@ -28,25 +32,11 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
           children: [
             _buildInfoRow('Истечёт через', '3 месяца'),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Логика перехода к истории платежей
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                elevation: 0,
-              ),
-              child: InkWell(
-                onTap: () {
-                  AutoRouter.of(context).push(ProfileHistoryPriceRoute());
-                },
-                child: const Text(
-                  'История платежей',
-                  style: TextStyle(color: Colors.purple, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
+            Btn(
+                theme: 'white',
+                text: 'История платежей',
+                onPressed: () => AutoRouter.of(context)
+                    .push(const ProfileHistoryPriceRoute())),
             const SizedBox(height: 24),
             const Text(
               'Выберите подписку',
@@ -56,9 +46,20 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildSubscriptionOption(0, '1', '1 месяц', '99 ₽'),
-                _buildSubscriptionOption(1, '3', '3 месяца', '199 ₽'),
-                _buildSubscriptionOption(2, '12', '12 месяцев', '1 199 ₽'),
+                Flexible(
+                    child: _buildSubscriptionOption(0, '1', '1 месяц', '99 ₽')),
+                const SizedBox(
+                  width: 16,
+                ),
+                Flexible(
+                    child:
+                        _buildSubscriptionOption(1, '3', '3 месяца', '199 ₽')),
+                const SizedBox(
+                  width: 16,
+                ),
+                Flexible(
+                    child: _buildSubscriptionOption(
+                        2, '12', '12 месяцев', '1 199 ₽')),
               ],
             ),
             const SizedBox(height: 24),
@@ -68,23 +69,13 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
             ),
             const SizedBox(height: 8),
             _buildPaymentMethodOption(0, 'МИР/Visa/Mastercard'),
+            Divider(
+              height: .5,
+              color: AppColors.light.withOpacity(0.4),
+            ),
             _buildPaymentMethodOption(1, 'СБП'),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                // Логика для оплаты
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'Оплатить',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+            Btn(text: 'Оплатить', theme: 'violet', onPressed: () => ()),
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {
@@ -102,19 +93,35 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
   }
 
   Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            width: 1,
+            color: Colors.grey.withOpacity(0.2),
+          ),
+          top: BorderSide(
+            width: 1,
+            color: Colors.grey.withOpacity(0.2),
+          ),
         ),
-        Text(value),
-      ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+          ),
+          Text(value),
+        ],
+      ),
     );
   }
 
-  Widget _buildSubscriptionOption(int index, String duration, String period, String price) {
+  Widget _buildSubscriptionOption(
+      int index, String duration, String period, String price) {
     bool isSelected = _selectedSubscriptionIndex == index;
     return GestureDetector(
       onTap: () {
@@ -123,27 +130,48 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
         });
       },
       child: Container(
-        width: 80,
+        width: double.infinity,
         decoration: BoxDecoration(
-          color: isSelected ? Colors.purple[100] : Colors.yellow[100],
           borderRadius: BorderRadius.circular(8),
-          border: isSelected ? Border.all(color: Colors.purple, width: 2) : null,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    offset: const Offset(0, 1),
+                    blurRadius: 0,
+                    spreadRadius: 0,
+                  ),
+                ]
+              : [],
         ),
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
-            Text(
-              duration,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.purple : Colors.orange,
+            Container(
+              width: 80,
+              height: 80,
+              alignment: Alignment.center,
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: isSelected ? AppColors.violet : AppColors.yellow,
+              ),
+              child: Text(
+                duration,
+                style: const TextStyle(
+                  fontSize: 60,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.white,
+                ),
               ),
             ),
             Text(period),
-            Text(
-              price,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            Container(
+              alignment: Alignment.center,
+              child: Text(
+                price,
+                style: const TextStyle(fontSize: 24),
+              ),
             ),
           ],
         ),
@@ -163,7 +191,7 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
             _selectedPaymentMethodIndex = value!;
           });
         },
-        activeColor: Colors.purple,
+        activeColor: AppColors.violet,
       ),
       onTap: () {
         setState(() {
@@ -174,11 +202,8 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
   }
 
   void _showCancelSubscriptionBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showCustomModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (BuildContext context) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
@@ -189,7 +214,7 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
                 'Приостановить подписку?',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontSize: 24,
                 ),
               ),
               const SizedBox(height: 8),
@@ -199,40 +224,36 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Закрыть нижний лист
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Оставить подписку',
-                  style: TextStyle(color: Colors.white),
+              SizedBox(
+                width: double.infinity,
+                child: Btn(
+                  text: 'Оставить подписку',
+                  theme: 'violet',
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Закрыть нижний лист
+                  },
                 ),
               ),
               const SizedBox(height: 8),
-              TextButton(
-                onPressed: () {
-                  // Логика для приостановки подписки
-                  Navigator.of(context).pop(); // Закрыть нижний лист
-                },
-                child: const Text(
-                  'Да, приостановить',
-                  style: TextStyle(color: Colors.black),
+              SizedBox(
+                width: double.infinity,
+                child: Btn(
+                  text: 'Да, приостановить',
+                  theme: 'white',
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Закрыть нижний лист
+                  },
                 ),
               ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Закрыть нижний лист
-                },
-                child: const Text(
-                  'Нет, всё равно отменить',
-                  style: TextStyle(color: Colors.red),
+              SizedBox(
+                width: double.infinity,
+                child: Btn(
+                  text: 'Нет, всё равно отменить',
+                  theme: 'white',
+                  textColor: AppColors.red,
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Закрыть нижний лист
+                  },
                 ),
               ),
             ],

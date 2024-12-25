@@ -39,7 +39,6 @@ class AuthState {
   }
 }
 
-
 class AuthNotifier extends Notifier<AuthState> {
   late final AuthRepository _authRepository;
   Timer? _timer;
@@ -55,8 +54,6 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(phoneNumber: phoneNumber);
   }
 
-  
-
   // Новый метод для смены роли
   Future<void> updateRole(String newRole) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -64,7 +61,8 @@ class AuthNotifier extends Notifier<AuthState> {
       await _authRepository.updateRole(newRole); // Логика репозитория
       state = state.copyWith(isLoading: false, role: newRole);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Ошибка смены роли: ${e.toString()}');
+      state = state.copyWith(
+          isLoading: false, error: 'Ошибка смены роли: ${e.toString()}');
     }
   }
 
@@ -134,15 +132,13 @@ class AuthNotifier extends Notifier<AuthState> {
     });
   }
 
-
- void setRole(String role) {
+  void setRole(String role) {
     state = state.copyWith(role: role);
   }
 
-
-final autoRouterProvider = Provider<StackRouter>((ref) {
-  return AppRouter();
-});
+  final autoRouterProvider = Provider<StackRouter>((ref) {
+    return AppRouter();
+  });
 
   Future<void> onSignOut() async {
     try {
@@ -159,20 +155,18 @@ final autoRouterProvider = Provider<StackRouter>((ref) {
     }
   }
 
-
   @override
   void dispose() {
     _timer?.cancel();
   }
 }
 
-final autoRouterProvider = Provider<AutoRouter>((ref) => AutoRouter());
-
+final autoRouterProvider = Provider<AutoRouter>((ref) => const AutoRouter());
 
 // Провайдер для AuthNotifier
-final authProvider = NotifierProvider<AuthNotifier, AuthState>(() => AuthNotifier());
-
-
+final authProvider =
+    NotifierProvider<AuthNotifier, AuthState>(() => AuthNotifier());
 
 // Репозиторий
-final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepository());
+final authRepositoryProvider =
+    Provider<AuthRepository>((ref) => AuthRepository());

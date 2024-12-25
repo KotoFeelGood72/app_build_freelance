@@ -402,10 +402,18 @@ class TaskCustomerProfileRoute extends _i25.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i19.TaskDetailCustomerScreen]
-class TaskDetailCustomerRoute extends _i25.PageRouteInfo<void> {
-  const TaskDetailCustomerRoute({List<_i25.PageRouteInfo>? children})
-      : super(
+class TaskDetailCustomerRoute
+    extends _i25.PageRouteInfo<TaskDetailCustomerRouteArgs> {
+  TaskDetailCustomerRoute({
+    _i26.Key? key,
+    required String taskId,
+    List<_i25.PageRouteInfo>? children,
+  }) : super(
           TaskDetailCustomerRoute.name,
+          args: TaskDetailCustomerRouteArgs(
+            key: key,
+            taskId: taskId,
+          ),
           initialChildren: children,
         );
 
@@ -414,17 +422,45 @@ class TaskDetailCustomerRoute extends _i25.PageRouteInfo<void> {
   static _i25.PageInfo page = _i25.PageInfo(
     name,
     builder: (data) {
-      return _i19.TaskDetailCustomerScreen();
+      final args = data.argsAs<TaskDetailCustomerRouteArgs>();
+      return _i19.TaskDetailCustomerScreen(
+        key: args.key,
+        taskId: args.taskId,
+      );
     },
   );
 }
 
+class TaskDetailCustomerRouteArgs {
+  const TaskDetailCustomerRouteArgs({
+    this.key,
+    required this.taskId,
+  });
+
+  final _i26.Key? key;
+
+  final String taskId;
+
+  @override
+  String toString() {
+    return 'TaskDetailCustomerRouteArgs{key: $key, taskId: $taskId}';
+  }
+}
+
 /// generated route for
 /// [_i20.TaskDetailExecutorScreen]
-class TaskDetailExecutorRoute extends _i25.PageRouteInfo<void> {
-  const TaskDetailExecutorRoute({List<_i25.PageRouteInfo>? children})
-      : super(
+class TaskDetailExecutorRoute
+    extends _i25.PageRouteInfo<TaskDetailExecutorRouteArgs> {
+  TaskDetailExecutorRoute({
+    _i26.Key? key,
+    required String taskId,
+    List<_i25.PageRouteInfo>? children,
+  }) : super(
           TaskDetailExecutorRoute.name,
+          args: TaskDetailExecutorRouteArgs(
+            key: key,
+            taskId: taskId,
+          ),
           initialChildren: children,
         );
 
@@ -433,9 +469,29 @@ class TaskDetailExecutorRoute extends _i25.PageRouteInfo<void> {
   static _i25.PageInfo page = _i25.PageInfo(
     name,
     builder: (data) {
-      return _i20.TaskDetailExecutorScreen();
+      final args = data.argsAs<TaskDetailExecutorRouteArgs>();
+      return _i20.TaskDetailExecutorScreen(
+        key: args.key,
+        taskId: args.taskId,
+      );
     },
   );
+}
+
+class TaskDetailExecutorRouteArgs {
+  const TaskDetailExecutorRouteArgs({
+    this.key,
+    required this.taskId,
+  });
+
+  final _i26.Key? key;
+
+  final String taskId;
+
+  @override
+  String toString() {
+    return 'TaskDetailExecutorRouteArgs{key: $key, taskId: $taskId}';
+  }
 }
 
 /// generated route for
