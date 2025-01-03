@@ -1,4 +1,5 @@
 import 'package:app_build_freelance/src/provider/auth/AuthProvider.dart';
+import 'package:app_build_freelance/src/screens/task/customers/task_response_screen.dart';
 import 'package:app_build_freelance/src/screens/task/details/customer/task_detail_customer.dart';
 import 'package:app_build_freelance/src/screens/task/details/executor/task_detail_executor.dart';
 import 'package:auto_route/auto_route.dart';
@@ -29,7 +30,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     if (role == 'Executor') {
       screen = TaskDetailExecutorScreen(taskId: widget.taskId);
     } else if (role == 'Customer') {
-      screen = TaskDetailCustomerScreen(taskId: widget.taskId);
+      screen = TaskResponseScreen(taskId: widget.taskId);
     } else {
       screen = const Center(child: Text('Роль не определена'));
     }

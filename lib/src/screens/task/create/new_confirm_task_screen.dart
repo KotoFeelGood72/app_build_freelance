@@ -36,7 +36,7 @@ class NewConfirmTaskScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(taskState.successMessage!)),
         );
-        AutoRouter.of(context).push(const TaskRoute());
+        // AutoRouter.of(context).push(const TaskRoute());
       });
     }
 
@@ -49,8 +49,9 @@ class NewConfirmTaskScreen extends ConsumerWidget {
         centerTitle: true,
       ),
       body: Container(
-        decoration: BoxDecoration(color: AppColors.bg),
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 32, top: 16),
+        decoration: const BoxDecoration(color: AppColors.bg),
+        padding:
+            const EdgeInsets.only(left: 16, right: 16, bottom: 32, top: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -79,7 +80,7 @@ class NewConfirmTaskScreen extends ConsumerWidget {
                   ),
                   const Square(height: 8),
                   Text(
-                    "${taskState.taskDescription ?? ''}",
+                    taskState.taskDescription ?? '',
                     style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.gray,
@@ -97,7 +98,8 @@ class NewConfirmTaskScreen extends ConsumerWidget {
                         backgroundColor: AppColors.ulight,
                         textColor: AppColors.black,
                         onSubmitted: (newPrice) {
-                          taskNotifier.updateTaskPrice(int.tryParse(newPrice) ?? 0);
+                          taskNotifier
+                              .updateTaskPrice(int.tryParse(newPrice) ?? 0);
                         },
                       );
                     },
@@ -110,7 +112,8 @@ class NewConfirmTaskScreen extends ConsumerWidget {
                         ? "${taskState.taskTerm!.day}.${taskState.taskTerm!.month} ${taskState.taskTerm!.hour}:${taskState.taskTerm!.minute}"
                         : "Укажите дату",
                     () async {
-                      DateTime? pickedDate = await pickDate(context, initialDate: taskState.taskTerm);
+                      DateTime? pickedDate = await pickDate(context,
+                          initialDate: taskState.taskTerm);
                       if (pickedDate != null) {
                         taskNotifier.updateTaskTerm(pickedDate);
                       }
@@ -144,8 +147,10 @@ class NewConfirmTaskScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _openLocationPicker(BuildContext context, TaskNotifier taskNotifier) async {
-    final LatLng initialLocation = LatLng(55.7558, 37.6173); // Москва по умолчанию
+  Future<void> _openLocationPicker(
+      BuildContext context, TaskNotifier taskNotifier) async {
+    const LatLng initialLocation =
+        LatLng(55.7558, 37.6173); // Москва по умолчанию
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => LocationPickerMap(
@@ -169,12 +174,12 @@ class NewConfirmTaskScreen extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
+          bottom: const BorderSide(
             width: 1,
             color: AppColors.border,
           ),
           top: borderTop
-              ? BorderSide(
+              ? const BorderSide(
                   width: 1,
                   color: AppColors.border,
                 )
@@ -204,7 +209,7 @@ class NewConfirmTaskScreen extends ConsumerWidget {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: onEdit,
-            child: Iconify(
+            child: const Iconify(
               MaterialSymbols.edit_outline_rounded,
               color: AppColors.violet,
               size: 18,

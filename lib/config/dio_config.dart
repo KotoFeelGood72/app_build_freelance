@@ -39,7 +39,11 @@ class DioConfig {
         receiveTimeout: const Duration(seconds: 3),
         validateStatus: (status) =>
             status != null &&
-            (status >= 200 && status < 300 || status == 401 || status == 404),
+            (status >= 200 && status < 300 ||
+                status == 401 ||
+                status == 404 ||
+                status == 400 ||
+                status == 500),
       ),
     );
 
@@ -50,126 +54,125 @@ class DioConfig {
 
     // Добавляем перехватчики
     dio.interceptors.addAll([
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          final token = await TokenStorage.getToken();
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
-          }
+      InterceptorsWrapper(onRequest: (options, handler) async {
+        final token = await TokenStorage.getToken();
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
 
-          final customContentType = options.extra['contentType'] as String?;
-          if (customContentType != null) {
-            options.headers['Content-Type'] = customContentType;
-          }
+        final customContentType = options.extra['contentType'] as String?;
+        if (customContentType != null) {
+          options.headers['Content-Type'] = customContentType;
+        }
 
-          // Проверка на FormData
-          if (options.data is FormData) {
-            print('[DIO LOG] FormData скрыто из логов');
-            options.extra['skipLog'] =
-                true; // Отмечаем, что не нужно логировать
-          }
+        // Проверка на FormData
+        if (options.data is FormData) {
+          print('[DIO LOG] FormData скрыто из логов');
+          options.extra['skipLog'] = true; // Отмечаем, что не нужно логировать
+        }
 
-          return handler.next(options);
-        },
-        onResponse: (response, handler) async {
-          if (response.statusCode == 401) {
-            print('[DEBUG] Unauthorized (401) detected');
+        return handler.next(options);
+      }, onResponse: (response, handler) async {
+        if (response.statusCode == 401) {
+          print('[DEBUG] Unauthorized (401) detected');
 
-            // Пытаемся обновить токен
-            final isRefreshed =
-                await _handleTokenRefresh(response.requestOptions);
+          // Пытаемся обновить токен
+          final isRefreshed =
+              await _handleTokenRefresh(response.requestOptions);
 
-            if (isRefreshed) {
-              try {
-                // Если токен обновлен, повторяем запрос
-                final retryResponse =
-                    await _retryRequest(response.requestOptions);
-                return handler
-                    .resolve(retryResponse); // Успешно завершаем обработку
-              } catch (retryError) {
-                print('[DEBUG] Ошибка при повторном запросе: $retryError');
-                return handler.reject(DioException(
-                  requestOptions: response.requestOptions,
-                  response: response,
-                  type: DioExceptionType.badResponse,
-                  error: 'Ошибка при повторном запросе',
-                ));
-              }
-            } else {
-              // Если не удалось обновить токен, редиректим на страницу входа
-              _redirectToLogin();
+          if (isRefreshed) {
+            try {
+              // Если токен обновлен, повторяем запрос
+              final retryResponse =
+                  await _retryRequest(response.requestOptions);
+              return handler
+                  .resolve(retryResponse); // Успешно завершаем обработку
+            } catch (retryError) {
+              print('[DEBUG] Ошибка при повторном запросе: $retryError');
               return handler.reject(DioException(
                 requestOptions: response.requestOptions,
                 response: response,
                 type: DioExceptionType.badResponse,
-                error: 'Требуется повторный вход',
+                error: 'Ошибка при повторном запросе',
               ));
             }
-          }
-
-          // Если статус не 401, продолжаем обработку
-          handler.next(response);
-        },
-        onError: (DioException e, handler) async {
-          print(
-              'Ошибка запроса: ${e.type}, Код ответа: ${e.response?.statusCode}');
-          String errorMessage;
-
-          // Обработка различных типов ошибок
-          if (e.type == DioExceptionType.connectionTimeout) {
-            errorMessage =
-                'Время ожидания соединения истекло. Проверьте подключение.';
-          } else if (e.type == DioExceptionType.receiveTimeout) {
-            errorMessage = 'Время ожидания ответа от сервера истекло.';
-          } else if (e.type == DioExceptionType.sendTimeout) {
-            errorMessage = 'Время отправки запроса истекло.';
-          } else if (e.type == DioExceptionType.badCertificate) {
-            errorMessage = 'Ошибка сертификата безопасности.';
-          } else if (e.type == DioExceptionType.connectionError) {
-            errorMessage = 'Проблема с подключением. Проверьте интернет.';
-          } else if (e.response != null) {
-            switch (e.response?.statusCode) {
-              case 400:
-                errorMessage =
-                    'Некорректный запрос. Проверьте введенные данные.';
-                break;
-              case 401:
-                errorMessage = 'Сессия истекла. Переподключение...';
-                final isRefreshed = await _handleTokenRefresh(e.requestOptions);
-                if (isRefreshed) {
-                  try {
-                    final retryRequest = await _retryRequest(e.requestOptions);
-                    return handler.resolve(retryRequest);
-                  } catch (retryError) {
-                    errorMessage = 'Ошибка при повторном запросе.';
-                  }
-                } else {
-                  _redirectToLogin();
-                  errorMessage =
-                      'Не удалось обновить токен. Перейдите на страницу входа.';
-                }
-                break;
-              case 403:
-                errorMessage = 'Доступ запрещен. Проверьте свои права.';
-                break;
-              case 404:
-                errorMessage = 'Ресурс не найден. Проверьте URL.';
-                break;
-              case 500:
-                errorMessage = 'Ошибка сервера. Повторите позже.';
-                break;
-              default:
-                errorMessage = 'Неизвестная ошибка: ${e.response?.statusCode}';
-            }
           } else {
-            errorMessage =
-                'Произошла неизвестная ошибка. Повторите попытку позже.';
+            // Если не удалось обновить токен, редиректим на страницу входа
+            _redirectToLogin();
+            return handler.reject(DioException(
+              requestOptions: response.requestOptions,
+              response: response,
+              type: DioExceptionType.badResponse,
+              error: 'Требуется повторный вход',
+            ));
           }
+        }
 
-          _showSnackBar(errorMessage);
-          handler.next(e); // Продолжаем обработку ошибки
-        },
-      ),
+        // Если статус не 401, продолжаем обработку
+        handler.next(response);
+      }, onError: (DioException e, handler) async {
+        print(
+            'Ошибка запроса: ${e.type}, Код ответа: ${e.response?.statusCode}');
+        String errorMessage;
+
+        // Проверка типа ошибки
+        if (e.type == DioExceptionType.connectionTimeout) {
+          errorMessage =
+              'Время ожидания соединения истекло. Проверьте подключение.';
+        } else if (e.type == DioExceptionType.receiveTimeout) {
+          errorMessage = 'Время ожидания ответа от сервера истекло.';
+        } else if (e.type == DioExceptionType.sendTimeout) {
+          errorMessage = 'Время отправки запроса истекло.';
+        } else if (e.type == DioExceptionType.badCertificate) {
+          errorMessage = 'Ошибка сертификата безопасности.';
+        } else if (e.type == DioExceptionType.connectionError) {
+          errorMessage = 'Проблема с подключением. Проверьте интернет.';
+        } else if (e.response != null) {
+          // Обработка HTTP-ответов
+          switch (e.response?.statusCode) {
+            case 400:
+              errorMessage = 'Некорректный запрос. Проверьте введенные данные.';
+              break;
+            case 401:
+              errorMessage = 'Сессия истекла. Пожалуйста, войдите снова.';
+              final isRefreshed = await _handleTokenRefresh(e.requestOptions);
+              if (isRefreshed) {
+                try {
+                  final retryRequest = await _retryRequest(e.requestOptions);
+                  return handler.resolve(retryRequest);
+                } catch (retryError) {
+                  errorMessage = 'Ошибка при повторном запросе.';
+                }
+              } else {
+                _redirectToLogin();
+                errorMessage =
+                    'Не удалось обновить токен. Перейдите на страницу входа.';
+              }
+              break;
+            case 403:
+              errorMessage = 'Доступ запрещен. Проверьте свои права.';
+              break;
+            case 404:
+              errorMessage = 'Ресурс не найден. Проверьте URL.';
+              break;
+            case 500:
+              errorMessage =
+                  'Ошибка сервера (500). Пожалуйста, повторите попытку позже.';
+              break;
+            default:
+              errorMessage = 'Неизвестная ошибка: ${e.response?.statusCode}';
+          }
+        } else {
+          // Обработка других ошибок
+          errorMessage =
+              'Произошла неизвестная ошибка. Повторите попытку позже.';
+        }
+
+        // Логирование ошибки
+        print('[Ошибка] $errorMessage');
+        _showSnackBar(errorMessage); // Показываем пользователю уведомление
+        handler.next(e); // Продолжаем обработку ошибки
+      }),
       talkerDioLogger, // Логгер запросов
     ]);
   }

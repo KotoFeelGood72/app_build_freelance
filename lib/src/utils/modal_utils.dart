@@ -1,3 +1,4 @@
+import 'package:app_build_freelance/src/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 /// Глобальная функция для отображения кастомного ModalBottomSheet
@@ -11,6 +12,7 @@ Future<T?> showCustomModalBottomSheet<T>({
     context: context,
     isDismissible: isDismissible,
     enableDrag: enableDrag,
+    backgroundColor: AppColors.bg,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(16.0), // Скругленные углы

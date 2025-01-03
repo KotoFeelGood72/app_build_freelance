@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_build_freelance/config/token_storage.dart';
 import 'package:app_build_freelance/router/app_router.dart';
 import 'package:app_build_freelance/router/app_router.gr.dart';
 import 'package:app_build_freelance/src/repositories/auth/auth_repository.dart';
@@ -47,7 +48,15 @@ class AuthNotifier extends Notifier<AuthState> {
   @override
   AuthState build() {
     _authRepository = ref.read(authRepositoryProvider);
+    _loadRole();
     return const AuthState();
+  }
+
+  Future<void> _loadRole() async {
+    final savedRole = await TokenStorage.getRole();
+    if (savedRole != null) {
+      state = state.copyWith(role: savedRole);
+    }
   }
 
   void setPhoneNumber(String phoneNumber) {
@@ -59,6 +68,7 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       await _authRepository.updateRole(newRole); // Логика репозитория
+      await TokenStorage.saveRole(newRole); // Сохраняем роль
       state = state.copyWith(isLoading: false, role: newRole);
     } catch (e) {
       state = state.copyWith(
@@ -134,6 +144,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
   void setRole(String role) {
     state = state.copyWith(role: role);
+    TokenStorage.saveRole(role); // Сохраняем роль при установке
   }
 
   final autoRouterProvider = Provider<StackRouter>((ref) {
@@ -143,6 +154,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> onSignOut() async {
     try {
       await _authRepository.logout();
+
       state = const AuthState(); // Сбрасываем состояние
       print('Ошибка при выходе: ');
       // Перенаправляем на WelcomeRoute

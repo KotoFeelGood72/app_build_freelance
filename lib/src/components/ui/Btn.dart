@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class Btn extends StatelessWidget {
   final String text;
-  final VoidCallback  onPressed;
+  final VoidCallback onPressed;
   final String theme;
   final Color? textColor;
   final double borderRadius;
@@ -11,7 +11,7 @@ class Btn extends StatelessWidget {
   final bool disabled; // Добавляем параметр для состояния disabled
 
   const Btn({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.theme = 'yellow',
@@ -19,7 +19,7 @@ class Btn extends StatelessWidget {
     this.borderRadius = 100.0,
     this.padding = const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
     this.disabled = false, // Значение по умолчанию для disabled
-  }) : super(key: key);
+  });
 
   // Метод для получения цвета фона в зависимости от темы и состояния disabled
   Color _getBackgroundColor() {
@@ -31,6 +31,8 @@ class Btn extends StatelessWidget {
         return AppColors.violet;
       case 'white':
         return AppColors.white;
+      case 'red':
+        return AppColors.red;
       case 'yellow':
       default:
         return AppColors.yellow;
@@ -39,7 +41,8 @@ class Btn extends StatelessWidget {
 
   // Метод для получения цвета текста в зависимости от темы и состояния disabled
   Color _getTextColor() {
-    if (disabled) return Colors.grey.shade600; // Цвет текста для disabled состояния
+    if (disabled)
+      return Colors.grey.shade600; // Цвет текста для disabled состояния
     if (textColor != null) return textColor!;
     switch (theme) {
       case 'light':
@@ -61,20 +64,27 @@ class Btn extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         padding: padding,
         backgroundColor: _getBackgroundColor(),
-        elevation: (theme == 'white' || disabled) ? 0 : null, // Убираем тень для disabled или white
-        shadowColor: (theme == 'white' || disabled) ? Colors.transparent : null, // Убираем тень для disabled или white
+        elevation: (theme == 'white' || disabled)
+            ? 0
+            : null, // Убираем тень для disabled или white
+        shadowColor: (theme == 'white' || disabled)
+            ? Colors.transparent
+            : null, // Убираем тень для disabled или white
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ).copyWith(
-        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+        overlayColor: WidgetStateProperty.resolveWith<Color?>(
           (states) {
-            if (theme == 'white' || disabled) return Colors.transparent; // Убираем эффект нажатия для disabled или white
+            if (theme == 'white' || disabled)
+              return Colors
+                  .transparent; // Убираем эффект нажатия для disabled или white
             return null;
           },
         ),
       ),
-      onPressed: disabled ? null : onPressed, // Блокируем нажатие, если disabled
+      onPressed:
+          disabled ? null : onPressed, // Блокируем нажатие, если disabled
       child: Text(
         text,
         style: TextStyle(color: _getTextColor(), fontSize: 16),

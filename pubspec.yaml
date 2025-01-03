@@ -42,6 +42,7 @@ dependencies:
   flutter_map: ^7.0.2
   flutter_map_marker_cluster: ^1.4.0
   talker_riverpod_logger: ^4.5.1
+  flutter_svg: ^2.0.16
 
 dev_dependencies:
   auto_route_generator: ^9.0.0
@@ -52,6 +53,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/icons/
     - assets/images/
     - assets/.env
 

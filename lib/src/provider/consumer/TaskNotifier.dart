@@ -134,6 +134,31 @@ class TaskNotifier extends StateNotifier<TaskState> {
     }
   }
 
+  // Future<void> fetchTaskById(String id) async {
+  //   state = state.copyWith(isLoading: true, errorMessage: null);
+
+  //   try {
+  //     // Выполняем GET запрос для получения задачи по ID
+  //     final response = await DioConfig().dio.get('/tasks/$id');
+
+  //     if (response.statusCode == 200) {
+  //       final task = response.data; // Получаем данные задачи из ответа
+  //       state = state.copyWith(
+  //         isLoading: false,
+  //         currentTask: task, // Обновляем текущее состояние задачи
+  //         errorMessage: null,
+  //       );
+  //     } else {
+  //       throw Exception("Ошибка при получении задачи: ${response.statusCode}");
+  //     }
+  //   } catch (e) {
+  //     state = state.copyWith(
+  //       isLoading: false,
+  //       errorMessage: 'Ошибка при получении задачи: $e',
+  //     );
+  //   }
+  // }
+
   void clearError() {
     state = state.copyWith(
       errorMessage: null,
@@ -141,39 +166,114 @@ class TaskNotifier extends StateNotifier<TaskState> {
     );
   }
 
-  Future<void> fetchTasks({String filters = 'tasks'}) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+//   Future<void> fetchTasks({String filters = 'tasks'}) async {
+//     state = state.copyWith(isLoading: true, errorMessage: null);
 
+//     try {
+//       // Передача query параметров
+//       final response = await DioConfig().dio.get(
+//         '/tasks',
+//         queryParameters: {
+//           'filters': filters, // Добавляем фильтры
+//         },
+//       );
+
+//       if (response.statusCode == 200) {
+//         final List<dynamic> tasks = response.data; // Список задач из ответа
+//         state = state.copyWith(
+//           isLoading: false,
+//           tasks: tasks, // Обновляем состояние задач
+//           errorMessage: null,
+//         );
+//       } else {
+//         state = state.copyWith(
+//           isLoading: false,
+//           errorMessage: 'Ошибка при получении задач',
+//         );
+//       }
+//     } catch (e) {
+//       state = state.copyWith(
+//         isLoading: false,
+//         errorMessage: 'Ошибка при получении задач: $e',
+//       );
+//     }
+//   }
+}
+
+final taskByIdProvider = FutureProvider.family<Map<String, dynamic>, String>(
+  (ref, taskId) async {
+    final response = await DioConfig().dio.get('/tasks/$taskId');
+    if (response.statusCode == 200) {
+      return response.data as Map<String, dynamic>;
+    } else {
+      throw Exception("Ошибка при получении задачи: ${response.statusCode}");
+    }
+  },
+);
+
+final taskResponsesProvider = FutureProvider.family<List<dynamic>, String>(
+  (ref, taskId) async {
     try {
-      // Передача query параметров
-      final response = await DioConfig().dio.get(
-        '/tasks',
-        queryParameters: {
-          'filters': filters, // Добавляем фильтры
-        },
-      );
+      // Выполняем GET запрос для получения откликов по taskId
+      final response = await DioConfig().dio.get('/tasks/$taskId/response');
 
       if (response.statusCode == 200) {
-        final List<dynamic> tasks = response.data; // Список задач из ответа
-        state = state.copyWith(
-          isLoading: false,
-          tasks: tasks, // Обновляем состояние задач
-          errorMessage: null,
-        );
+        return response.data as List<dynamic>; // Возвращаем список откликов
       } else {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: 'Ошибка при получении задач',
-        );
+        throw Exception(
+            "Ошибка при получении откликов: ${response.statusCode}");
       }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Ошибка при получении задач: $e',
-      );
+      throw Exception("Ошибка при выполнении запроса: $e");
     }
+  },
+);
+
+final sendTaskResponseProvider =
+    FutureProvider.family<void, Map<String, dynamic>>((ref, data) async {
+  final String taskId = data['taskId'];
+  final String text = data['text'];
+
+  try {
+    // Выполняем POST запрос для отправки отклика
+    final response = await DioConfig().dio.post(
+      '/tasks/$taskId/response',
+      data: {
+        'text': text,
+      },
+    );
+
+    if (response.statusCode == 201) {
+      // Успешное выполнение запроса
+      return;
+    } else {
+      throw Exception(
+          "Ошибка при отправке отклика: ${response.statusCode} ${response.data}");
+    }
+  } catch (e) {
+    throw Exception("Ошибка при выполнении запроса: $e");
   }
-}
+});
+
+final fetchTasksProvider =
+    FutureProvider.family<List<dynamic>, Map<String, dynamic>>(
+        (ref, query) async {
+  try {
+    final response = await DioConfig().dio.get(
+          '/tasks',
+          queryParameters: query, // Передаем query параметры
+        );
+
+    if (response.statusCode == 200) {
+      // Если запрос успешен, возвращаем данные (список задач)
+      return response.data as List<dynamic>;
+    } else {
+      throw Exception("Ошибка при получении задач: ${response.statusCode}");
+    }
+  } catch (e) {
+    throw Exception("Ошибка при выполнении запроса: $e");
+  }
+});
 
 final taskNotifierProvider =
     StateNotifierProvider<TaskNotifier, TaskState>((ref) {

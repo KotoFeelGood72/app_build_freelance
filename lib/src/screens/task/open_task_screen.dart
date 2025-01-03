@@ -9,25 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
-class OpenTaskScreen extends ConsumerStatefulWidget {
+class OpenTaskScreen extends ConsumerWidget {
   const OpenTaskScreen({super.key});
 
   @override
-  ConsumerState<OpenTaskScreen> createState() => _OpenTaskScreenState();
-}
-
-class _OpenTaskScreenState extends ConsumerState<OpenTaskScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Загружаем задачи при монтировании экрана
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(taskNotifierProvider.notifier).fetchTasks();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final taskState = ref.watch(taskNotifierProvider);
     final authState = ref.watch(authProvider);
 
@@ -44,32 +30,25 @@ class _OpenTaskScreenState extends ConsumerState<OpenTaskScreen> {
         ),
       ),
       child: taskState.isLoading
-          ? const Center(
-              child: CircularProgressIndicator()) // Показываем загрузку
+          ? const Center(child: CircularProgressIndicator())
           : taskState.tasks.isEmpty
-              ? const CustomersNoneTasks() // Показываем placeholder, если задач нет
+              ? const CustomersNoneTasks()
               : ListView.builder(
-                  // Отображаем список задач
                   itemCount: taskState.tasks.length,
                   itemBuilder: (context, index) {
                     final task = taskState.tasks[index];
                     return Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 16.0), // Отступ снизу
+                      padding: const EdgeInsets.only(bottom: 16.0),
                       child: CardTask(
                         task: task,
                         onTap: () {
                           if (authState.role == 'Customer') {
                             AutoRouter.of(context).push(
-                              TaskResponseRoute(
-                                  taskId: task['id']
-                                      .toString()), // Преобразуем int в String
+                              TaskResponseRoute(taskId: task['id'].toString()),
                             );
                           } else {
                             AutoRouter.of(context).push(
-                              TaskDetailRoute(
-                                  taskId: task['id']
-                                      .toString()), // Преобразуем int в String
+                              TaskDetailRoute(taskId: task['id'].toString()),
                             );
                           }
                         },
