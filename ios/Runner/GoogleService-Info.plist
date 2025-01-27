@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.work.appBuildFreelance</string>
+	<string>com.general.worker</string>
 	<key>PROJECT_ID</key>
 	<string>app-freelance-f3dee</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,7 +25,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:721598927062:ios:c834dccb6c153713c3f977</string>
+	<string>1:721598927062:ios:2b82b02975dac135c3f977</string>
 	<key>DATABASE_URL</key>
 	<string>https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app</string>
 </dict>

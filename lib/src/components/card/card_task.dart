@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class CardTask extends StatelessWidget {
@@ -28,7 +27,6 @@ class CardTask extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Название задачи и время создания
             Row(
               children: [
                 Expanded(

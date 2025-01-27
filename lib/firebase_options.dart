@@ -46,7 +46,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '721598927062',
     projectId: 'app-freelance-f3dee',
     authDomain: 'app-freelance-f3dee.firebaseapp.com',
-    databaseURL: 'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'app-freelance-f3dee.firebasestorage.app',
     measurementId: 'G-3GFQWVZ0XT',
   );
@@ -56,7 +57,8 @@ class DefaultFirebaseOptions {
     appId: '1:721598927062:android:a4588de1897151f9c3f977',
     messagingSenderId: '721598927062',
     projectId: 'app-freelance-f3dee',
-    databaseURL: 'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'app-freelance-f3dee.firebasestorage.app',
   );
 
@@ -65,9 +67,10 @@ class DefaultFirebaseOptions {
     appId: '1:721598927062:ios:c834dccb6c153713c3f977',
     messagingSenderId: '721598927062',
     projectId: 'app-freelance-f3dee',
-    databaseURL: 'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'app-freelance-f3dee.firebasestorage.app',
-    iosBundleId: 'com.work.appBuildFreelance',
+    iosBundleId: 'com.general.worker',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -75,9 +78,10 @@ class DefaultFirebaseOptions {
     appId: '1:721598927062:ios:c834dccb6c153713c3f977',
     messagingSenderId: '721598927062',
     projectId: 'app-freelance-f3dee',
-    databaseURL: 'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'app-freelance-f3dee.firebasestorage.app',
-    iosBundleId: 'com.work.appBuildFreelance',
+    iosBundleId: 'com.general.worker',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -86,7 +90,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '721598927062',
     projectId: 'app-freelance-f3dee',
     authDomain: 'app-freelance-f3dee.firebaseapp.com',
-    databaseURL: 'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://app-freelance-f3dee-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'app-freelance-f3dee.firebasestorage.app',
     measurementId: 'G-TY6Q9XZPNV',
   );

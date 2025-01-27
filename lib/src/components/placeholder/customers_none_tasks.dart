@@ -6,14 +6,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CustomersNoneTasks extends ConsumerWidget {
-  const CustomersNoneTasks({super.key});
+  final String title;
+  final String text;
+
+  const CustomersNoneTasks({
+    super.key,
+    this.title = 'У вас сейчас нет заданий',
+    this.text = 'Открытые задания появятся здесь',
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final role = authState.role;
 
-    return Container(
+    return SizedBox(
+      width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -32,8 +40,10 @@ class CustomersNoneTasks extends ConsumerWidget {
               ),
             ),
           ),
-          const Text('У вас сейчас нет заданий'),
-          const Text('Открытые задания появятся здесь'),
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(text, style: const TextStyle(fontSize: 14, color: Colors.grey)),
           if (role == 'Customer') // Проверка роли
             Btn(
               text: 'Создать задание',

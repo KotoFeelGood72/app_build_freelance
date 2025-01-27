@@ -12,11 +12,13 @@ final isCustomerSelectedProvider = StateProvider<bool>((ref) => true);
 
 @RoutePage()
 class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isCustomerSelected = ref.watch(isCustomerSelectedProvider);
+    // final isCustomerSelected = ref.watch(isCustomerSelectedProvider);
+    final authState = ref.watch(authProvider);
+    final role = authState.role;
     final authNotifier = ref.read(authProvider.notifier);
 
     return Scaffold(
@@ -46,20 +48,25 @@ class ProfileScreen extends ConsumerWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () async {
-                        ref.read(isCustomerSelectedProvider.notifier).state = false;
+                        ref.read(isCustomerSelectedProvider.notifier).state =
+                            false;
                         await authNotifier.updateRole('Executor');
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: !isCustomerSelected ? Colors.white : Colors.transparent,
+                          color: role == 'Executor'
+                              ? Colors.white
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Center(
                           child: Text(
                             'Я — исполнитель',
                             style: TextStyle(
-                              color: !isCustomerSelected ? Colors.black : Colors.grey,
+                              color: role != 'Customer'
+                                  ? AppColors.violet
+                                  : Colors.grey,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -70,20 +77,25 @@ class ProfileScreen extends ConsumerWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () async {
-                        ref.read(isCustomerSelectedProvider.notifier).state = true;
+                        ref.read(isCustomerSelectedProvider.notifier).state =
+                            true;
                         await authNotifier.updateRole('Customer');
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: isCustomerSelected ? Colors.white : Colors.transparent,
+                          color: role == 'Customer'
+                              ? Colors.white
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Center(
                           child: Text(
                             'Я — заказчик',
                             style: TextStyle(
-                              color: isCustomerSelected ? AppColors.violet : AppColors.light,
+                              color: role == 'Customer'
+                                  ? AppColors.violet
+                                  : AppColors.light,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -102,40 +114,41 @@ class ProfileScreen extends ConsumerWidget {
                 ProfileOption(
                   title: 'Личные данные',
                   onTap: () {
-                    AutoRouter.of(context).push(ProfileUserDataRoute());
+                    AutoRouter.of(context).push(const ProfileUserDataRoute());
                   },
                 ),
                 ProfileOption(
                   title: 'Рейтинг и отзывы',
                   subtitle: 'Супер (Топ-10)',
                   onTap: () {
-                    AutoRouter.of(context).push(ProfileStarsRoute());
+                    AutoRouter.of(context).push(const ProfileStarsRoute());
                   },
                 ),
                 ProfileOption(
                   title: 'Уведомления',
                   subtitle: 'Включены',
                   onTap: () {
-                    AutoRouter.of(context).push(ProfileNoteRoute());
+                    AutoRouter.of(context).push(const ProfileNoteRoute());
                   },
                 ),
                 ProfileOption(
                   title: 'Подписка',
                   subtitle: 'Истечёт через: 3 мес',
                   onTap: () {
-                    AutoRouter.of(context).push(ProfileSubscriptionRoute());
+                    AutoRouter.of(context)
+                        .push(const ProfileSubscriptionRoute());
                   },
                 ),
                 ProfileOption(
                   title: 'О приложении',
                   onTap: () {
-                    AutoRouter.of(context).push(ProfileAppRoute());
+                    AutoRouter.of(context).push(const ProfileAppRoute());
                   },
                 ),
                 ProfileOption(
                   title: 'Помощь',
                   onTap: () {
-                    AutoRouter.of(context).push(ProfileHelpRoute());
+                    AutoRouter.of(context).push(const ProfileHelpRoute());
                   },
                 ),
               ],
@@ -145,7 +158,7 @@ class ProfileScreen extends ConsumerWidget {
             text: 'Выйти',
             onPressed: () async {
               await authNotifier.onSignOut();
-              AutoRouter.of(context).replace(WelcomeRoute());
+              AutoRouter.of(context).replace(const WelcomeRoute());
             },
             textColor: AppColors.red,
             theme: 'white',

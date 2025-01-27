@@ -1,115 +1,61 @@
+import 'package:app_build_freelance/providers/stars_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app_build_freelance/src/components/ui/info_row.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()
-class ProfileStarsScreen extends StatelessWidget {
+class ProfileStarsScreen extends ConsumerWidget {
   const ProfileStarsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final starsState = ref.watch(starsProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Рейтинг')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            InfoRow(label: 'Рейтинг', value: 'Супер (Топ-10)'),
-            InfoRow(
-              label: 'Выполнено',
-              value: '1000 заданий',
-              hasBottomBorder: true,
-              hasTopBorder: true,
-            ),
-            InfoRow(
-              label: 'Заработано',
-              value: '10 000 ₽',
-              hasBottomBorder: true,
-            ),
-            const SizedBox(height: 24),
-            // Круговая диаграмма прогресса
-            Center(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 150,
-                    height: 150,
-                    child: CircularProgressIndicator(
-                      value: 0.7, // 70% прогресса
-                      strokeWidth: 8,
-                      color: Colors.purple,
-                      backgroundColor: Colors.grey[300],
-                    ),
-                  ),
-                  const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '10 000 ₽',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.purple,
-                        ),
-                      ),
-                      Text(
-                        '70% потрачено',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Оценка
-            const Text(
-              'Оценка',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  '+ 999',
-                  style: TextStyle(color: Colors.green, fontSize: 16),
+      body: starsState.when(
+        data: (data) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                InfoRow(label: 'Рейтинг', value: data['rating']),
+                InfoRow(
+                  label: 'Выполнено',
+                  value: '${data['tasks_completed']} заданий',
+                  hasBottomBorder: true,
+                  hasTopBorder: true,
                 ),
-                SizedBox(width: 16),
-                Text(
-                  '- 9',
-                  style: TextStyle(color: Colors.red, fontSize: 16),
+                InfoRow(
+                  label: 'Заработано',
+                  value: '${data['total_earnings']} ₽',
+                  hasBottomBorder: true,
                 ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Отзывы',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                if (data['reviews'] != null && data['reviews'].isNotEmpty)
+                  ...data['reviews'].map<Widget>((review) {
+                    return ReviewCard(
+                      username: review['username'],
+                      date: review['date'],
+                      comment: review['comment'],
+                      isPositive: review['isPositive'],
+                    );
+                  }).toList()
+                else
+                  const Text('Нет отзывов'),
               ],
             ),
-            const SizedBox(height: 24),
-            // Отзывы
-            const Text(
-              'Отзывы',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            // Пример отзыва
-            ReviewCard(
-              username: 'Александр',
-              date: '29.10.2024',
-              comment:
-                  'В своём стремлении повысить качество жизни, они забывают, что экономическая повестка сегодняшнего дня обеспечивает широкий круг (специалистов) участие в формировании переосмысления внешнеэкономических политик.',
-              isPositive: true,
-            ),
-            ReviewCard(
-              username: 'Александр',
-              date: '29.10.2024',
-              comment:
-                  'Текст отзыва, который будет отображаться в карточке...',
-              isPositive: false,
-            ),
-            // Добавьте другие отзывы по аналогии
-          ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(
+          child: Text('Ошибка: $error'),
         ),
       ),
     );
@@ -123,12 +69,12 @@ class ReviewCard extends StatelessWidget {
   final bool isPositive;
 
   const ReviewCard({
-    Key? key,
+    super.key,
     required this.username,
     required this.date,
     required this.comment,
     this.isPositive = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -142,10 +88,10 @@ class ReviewCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   backgroundColor: Colors.yellow,
                   radius: 20,
-                  child: const Icon(Icons.person),
+                  child: Icon(Icons.person),
                 ),
                 const SizedBox(width: 8),
                 Text(

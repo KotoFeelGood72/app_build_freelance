@@ -6,6 +6,7 @@ import 'package:app_build_freelance/src/components/ui/info_row.dart';
 import 'package:app_build_freelance/src/constants/app_colors.dart';
 import 'package:app_build_freelance/src/provider/consumer/TaskNotifier.dart';
 import 'package:app_build_freelance/src/utils/modal_utils.dart';
+import 'package:app_build_freelance/src/utils/send_repsponse.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,20 +82,23 @@ class TaskDetailExecutorScreen extends ConsumerWidget {
                         value: task['taskCreated'],
                         hasBottomBorder: true,
                       ),
-                      const InfoRow(
+                      InfoRow(
                         label: 'Статус',
-                        value: 'Поиск исполнителя',
+                        value: task['taskStatus'],
                         hasBottomBorder: true,
                       ),
                       const Square(),
                       Row(
                         children: [
-                          Container(
+                          SizedBox(
                             width: 32,
                             height: 32,
-                            decoration: const BoxDecoration(
-                              color: AppColors.violet,
-                              shape: BoxShape.circle,
+                            child: CircleAvatar(
+                              backgroundImage: task['customer']['photo'] != null
+                                  ? NetworkImage(
+                                      task['customer']['photo'].toString())
+                                  : const AssetImage(
+                                      'assets/images/splash.png'),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -122,32 +126,46 @@ class TaskDetailExecutorScreen extends ConsumerWidget {
                   ),
                 ),
                 const Square(),
-                Btn(
-                    text: 'Пожаловаться',
-                    onPressed: () {},
-                    theme: 'white',
-                    textColor: AppColors.red),
+                // Btn(
+                //     text: 'в чат',
+                //     onPressed: () {
+                //       AutoRouter.of(context)
+                //           .push(ChatsRoute(chatsId: taskId.toString()));
+                //     },
+                //     theme: 'white',
+                //     textColor: AppColors.red),
                 const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
+                if (task['taskStatus'] == 'Поиск исполнителя')
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                          child: Btn(
+                              text: 'Отказаться',
+                              theme: 'white',
+                              onPressed: () {})),
+                      const SizedBox(
+                        width: 16,
+                      ),
+                      Expanded(
                         child: Btn(
-                            text: 'Отказаться',
-                            theme: 'white',
-                            onPressed: () {})),
-                    const SizedBox(
-                      width: 16,
-                    ),
-                    Expanded(
-                      child: Btn(
-                          text: 'Согласиться',
-                          onPressed: () =>
-                              _openResponseModal(context, ref, taskId),
-                          theme: 'violet'),
-                    ),
-                  ],
-                ),
+                            text: 'Согласиться',
+                            onPressed: () =>
+                                openResponseModal(context, ref, taskId),
+                            theme: 'violet'),
+                      ),
+                    ],
+                  ),
+                if (task['taskStatus'] != 'Поиск исполнителя')
+                  SizedBox(
+                    width: double.infinity,
+                    child: Btn(
+                        text: 'Подтвердить выполнение',
+                        onPressed: () =>
+                            openResponseModal(context, ref, taskId),
+                        theme: 'violet'),
+                  ),
+
                 const Square(
                   height: 32,
                 )
@@ -160,82 +178,4 @@ class TaskDetailExecutorScreen extends ConsumerWidget {
       ),
     );
   }
-}
-
-void _openResponseModal(BuildContext context, WidgetRef ref, String taskId) {
-  final TextEditingController responseController = TextEditingController();
-
-  showCustomModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return Container(
-        color: AppColors.bg,
-        padding:
-            const EdgeInsets.only(bottom: 32, left: 16, right: 16, top: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('Написать отклик',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 32),
-            Inputs(
-              backgroundColor: Colors.white,
-              textColor: Colors.black,
-              controller: responseController,
-              label: 'Ваш отклик',
-              fieldType: 'text',
-              isMultiline: true,
-              required: true,
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Btn(
-                    text: 'Отмена',
-                    theme: 'white',
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Закрыть модалку
-                    },
-                  ),
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-                Expanded(
-                  child: Btn(
-                    text: 'Отправить',
-                    theme: 'violet',
-                    onPressed: () {
-                      ref
-                          .read(sendTaskResponseProvider({
-                        'taskId': taskId,
-                        'text': responseController.text,
-                      }).future)
-                          .then((_) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Отклик успешно отправлен!'),
-                          ),
-                        );
-                        // AutoRouter.of(context).replaceAll([const TaskRoute()]);
-                      }).catchError((error) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Ошибка: $error'),
-                          ),
-                        );
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    },
-  );
 }

@@ -1,3 +1,6 @@
+import 'package:app_build_freelance/src/components/ui/Btn.dart';
+import 'package:app_build_freelance/src/components/ui/Icons.dart';
+import 'package:app_build_freelance/src/constants/app_colors.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
@@ -16,9 +19,9 @@ class ProfileAppScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
+            const Center(
               child: Column(
-                children: const [
+                children: [
                   Text(
                     'Версия: 0.00.0',
                     style: TextStyle(color: Colors.grey),
@@ -27,96 +30,162 @@ class ProfileAppScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+            Container(
               child: Column(
                 children: [
-                  ListTile(
-                    title: const Text('Напишите нам'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
+                  CustomListTile(
+                    title: 'Напишите нам',
+                    icon: const IconWidget(
+                      iconName: 'right',
+                      size: 10,
+                      color: AppColors.gray,
+                    ),
                     onTap: () {
-                      // Логика для перехода
+                      // Логика для "Напишите нам"
                     },
                   ),
-                  const Divider(),
-                  ListTile(
-                    title: const Text('Рейтинг'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
+                  CustomListTile(
+                    title: 'Рейтинг',
+                    icon: const IconWidget(
+                      iconName: 'right',
+                      size: 10,
+                      color: AppColors.gray,
+                    ),
                     onTap: () {
-                      // Логика для перехода
+                      // Логика для "Напишите нам"
                     },
                   ),
-                  const Divider(),
-                  ListTile(
-                    title: const Text('Очистить кэш'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
+                  CustomListTile(
+                    title: 'Очистить кэш ',
+                    icon: const IconWidget(
+                      iconName: 'right',
+                      size: 10,
+                      color: AppColors.gray,
+                    ),
                     onTap: () {
-                      // Логика для очистки кэша
+                      // Логика для "Напишите нам"
                     },
                   ),
-                  const Divider(),
-                  ListTile(
-                    title: const Text('Правила сервиса'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
+                  CustomListTile(
+                    title: 'Правила сервиса',
+                    icon: const IconWidget(
+                      iconName: 'right',
+                      size: 10,
+                      color: AppColors.gray,
+                    ),
                     onTap: () {
-                      // Логика для перехода
+                      // Логика для "Напишите нам"
                     },
                   ),
-                  const Divider(),
-                  ListTile(
-                    title: const Text('Политика конфиденциальности'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
+                  CustomListTile(
+                    title: 'Политика конфиденциальности',
+                    icon: const IconWidget(
+                      iconName: 'right',
+                      size: 10,
+                      color: AppColors.gray,
+                    ),
                     onTap: () {
-                      // Логика для перехода
+                      // Логика для "Напишите нам"
+                    },
+                  ),
+                  CustomListTile(
+                    txtColor: AppColors.red,
+                    title: 'Удалить аккаунт',
+                    icon: const IconWidget(
+                        iconName: 'right', size: 10, color: AppColors.red),
+                    onTap: () {
+                      // Логика для "Напишите нам"
                     },
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            Center(
+            Container(
               child: Column(
                 children: [
-                  const Text(
-                    'Наши соцсети',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.share),
-                        onPressed: () {
-                          // Логика для VK
-                        },
-                        iconSize: 40,
-                      ),
-                      const SizedBox(width: 16),
-                      IconButton(
-                        icon: const Icon(Icons.telegram),
-                        onPressed: () {
-                          // Логика для Telegram
-                        },
-                        iconSize: 40,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () {
-                      // Логика для удаления аккаунта
-                    },
-                    child: const Text(
-                      'Удалить аккаунт',
-                      style: TextStyle(color: Colors.red),
+                  CustomListTile(
+                    title: 'ВКонтакте',
+                    leadingAsset:
+                        'assets/images/vk.png', // Укажите путь к изображению
+                    icon: const IconWidget(
+                      iconName: 'right',
+                      size: 10,
+                      color: AppColors.gray,
                     ),
+                    onTap: () {
+                      // Логика для второго пункта
+                    },
+                  ),
+                  CustomListTile(
+                    title: 'Telegram',
+                    leadingAsset:
+                        'assets/images/tg.png', // Укажите путь к изображению
+                    icon: const IconWidget(
+                      iconName: 'right',
+                      size: 10,
+                      color: AppColors.gray,
+                    ),
+                    onTap: () {
+                      // Логика для второго пункта
+                    },
                   ),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomListTile extends StatelessWidget {
+  final String title;
+  final String? leadingAsset;
+  final Widget icon;
+  final VoidCallback onTap;
+  final Color? txtColor;
+
+  const CustomListTile({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onTap,
+    this.txtColor,
+    this.leadingAsset,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(width: .5, color: AppColors.border),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (leadingAsset != null) ...[
+              Image.asset(
+                leadingAsset!,
+                width: 24,
+                height: 24,
+              ),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: Text(
+                title,
+                style:
+                    TextStyle(fontSize: 16, color: txtColor ?? AppColors.black),
+              ),
+            ),
+            icon,
           ],
         ),
       ),

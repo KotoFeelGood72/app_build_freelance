@@ -30,12 +30,6 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Мы запрашиваем доступ к камере для съемки изображений.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Мы запрашиваем доступ к вашей библиотеке фотографий для загрузки изображений.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Мы запрашиваем доступ для добавления изображений в библиотеку фотографий.</string>
-	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
-	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Мы используем ваше местоположение для показа уведомлений.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -44,8 +38,14 @@
 	<string>Мы используем ваше местоположение для показа уведомлений.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Запрашиваем доступ к микрофону</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Мы запрашиваем доступ для добавления изображений в библиотеку фотографий.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Мы запрашиваем доступ к вашей библиотеке фотографий для загрузки изображений.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Мы используем вашу информацию для показа персонализированных уведомлений.</string>
+	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

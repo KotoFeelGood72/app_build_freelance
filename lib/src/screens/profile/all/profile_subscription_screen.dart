@@ -1,26 +1,31 @@
+import 'package:app_build_freelance/providers/subscription_providers.dart';
 import 'package:app_build_freelance/router/app_router.gr.dart';
 import 'package:app_build_freelance/src/components/ui/Btn.dart';
 import 'package:app_build_freelance/src/constants/app_colors.dart';
 import 'package:app_build_freelance/src/utils/modal_utils.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
-class ProfileSubscriptionScreen extends StatefulWidget {
+class ProfileSubscriptionScreen extends ConsumerStatefulWidget {
   const ProfileSubscriptionScreen({super.key});
 
   @override
-  State<ProfileSubscriptionScreen> createState() =>
+  ConsumerState<ProfileSubscriptionScreen> createState() =>
       _ProfileSubscriptionScreenState();
 }
 
-class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
-  // Индексы выбранных подписки и способа оплаты
-  int _selectedSubscriptionIndex = 1; // 0: 1 месяц, 1: 3 месяца, 2: 12 месяцев
-  int _selectedPaymentMethodIndex = 0; // 0: МИР/Visa/Mastercard, 1: СБП
+class _ProfileSubscriptionScreenState
+    extends ConsumerState<ProfileSubscriptionScreen> {
+  int _selectedSubscriptionIndex = 0; // По умолчанию выбран первый план
+  int _selectedPaymentMethodIndex =
+      0; // По умолчанию выбран первый способ оплаты
 
   @override
   Widget build(BuildContext context) {
+    final subscriptionPlans = ref.watch(subscriptionProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Подписка'),
@@ -33,34 +38,54 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
             _buildInfoRow('Истечёт через', '3 месяца'),
             const SizedBox(height: 16),
             Btn(
-                theme: 'white',
-                text: 'История платежей',
-                onPressed: () => AutoRouter.of(context)
-                    .push(const ProfileHistoryPriceRoute())),
+              theme: 'white',
+              text: 'История платежей',
+              onPressed: () =>
+                  AutoRouter.of(context).push(const ProfileHistoryPriceRoute()),
+            ),
             const SizedBox(height: 24),
             const Text(
               'Выберите подписку',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Flexible(
-                    child: _buildSubscriptionOption(0, '1', '1 месяц', '99 ₽')),
-                const SizedBox(
-                  width: 16,
+            subscriptionPlans.when(
+              data: (data) {
+                // Проверяем, что данные — это карта, содержащая 'plans'
+                if (data is Map && data.containsKey('plans')) {
+                  final plans = data['plans'] as List;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: plans.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final plan = entry.value;
+
+                      return Flexible(
+                        child: _buildSubscriptionOption(
+                          index,
+                          plan['period'].toString(),
+                          '${plan['period']} ${_getPeriodText(plan['period'])}',
+                          '${plan['price']} ₽',
+                        ),
+                      );
+                    }).toList(),
+                  );
+                } else {
+                  return const Center(
+                    child: Text('Данные недоступны'),
+                  );
+                }
+              },
+              loading: () => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              error: (error, stackTrace) => Center(
+                child: Text(
+                  'Ошибка загрузки данных: $error',
+                  style: const TextStyle(color: Colors.red),
                 ),
-                Flexible(
-                    child:
-                        _buildSubscriptionOption(1, '3', '3 месяца', '199 ₽')),
-                const SizedBox(
-                  width: 16,
-                ),
-                Flexible(
-                    child: _buildSubscriptionOption(
-                        2, '12', '12 месяцев', '1 199 ₽')),
-              ],
+              ),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -261,5 +286,18 @@ class _ProfileSubscriptionScreenState extends State<ProfileSubscriptionScreen> {
         );
       },
     );
+  }
+
+  String _getPeriodText(int period) {
+    switch (period) {
+      case 1:
+        return 'месяц';
+      case 3:
+        return 'месяца';
+      case 12:
+        return 'месяцев';
+      default:
+        return '';
+    }
   }
 }

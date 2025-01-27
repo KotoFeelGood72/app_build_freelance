@@ -18,14 +18,11 @@ class AppRouter extends RootStackRouter {
             path: '/welcome',
             initial: true,
             guards: [unAuthGuard]),
-        AutoRoute(
-            page: SignInRoute.page, path: '/sign-in', guards: [unAuthGuard]),
-        AutoRoute(
-            page: SignUpRoute.page, path: '/sign-up', guards: [unAuthGuard]),
-        AutoRoute(
-            page: ConfirmRoute.page, path: '/confirm', guards: [unAuthGuard]),
 
         // Защищенные маршруты, доступные только авторизованным пользователям
+        AutoRoute(page: AuthRoute.page, path: '/auth', guards: [unAuthGuard]),
+        AutoRoute(
+            page: ConfirmRoute.page, path: '/confirm', guards: [unAuthGuard]),
         AutoRoute(
           page: TaskRoute.page,
           path: '/task',
@@ -61,12 +58,20 @@ class AppRouter extends RootStackRouter {
             path: '/task/response/:taskId',
             guards: [authGuard]),
         AutoRoute(
+            page: ChatsRoute.page,
+            path: '/task/chats/:chatsId',
+            guards: [authGuard]),
+        AutoRoute(
             page: TaskCustomerProfileRoute.page,
             path: '/profile/customer/preview/:profileCustomerId',
             guards: [authGuard]),
         AutoRoute(
             page: ProfileStarsRoute.page,
             path: '/profile/stars',
+            guards: [authGuard]),
+        AutoRoute(
+            page: ProfileFeedbackRoute.page,
+            path: '/profile/faq/feedback',
             guards: [authGuard]),
         AutoRoute(
             page: ProfileSubscriptionRoute.page,

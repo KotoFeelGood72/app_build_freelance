@@ -1,9 +1,16 @@
 import 'package:app_build_freelance/config/dio_config.dart';
+import 'package:app_build_freelance/data/repositories/task_repository.dart';
 import 'package:app_build_freelance/src/provider/consumer/TaskState.dart';
+import 'package:app_build_freelance/src/utils/go_to_profile.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TaskNotifier extends StateNotifier<TaskState> {
-  TaskNotifier() : super(TaskState());
+  final TaskRepository _taskRepository;
+  TaskNotifier(Ref ref)
+      : _taskRepository = ref.read(taskRepositoryProvider),
+        super(TaskState());
 
   void updateTaskName(String taskName) {
     state = state.copyWith(taskName: taskName);
@@ -15,7 +22,7 @@ class TaskNotifier extends StateNotifier<TaskState> {
   }
 
   void updateTaskTerm(DateTime? taskTerm) {
-    print("Дата обновлена через updateTaskTerm: $taskTerm");
+    // print("Дата обновлена через updateTaskTerm: $taskTerm");
     state = state.copyWith(taskTerm: taskTerm);
   }
 
@@ -64,7 +71,7 @@ class TaskNotifier extends StateNotifier<TaskState> {
     }
   }
 
-  Future<void> submitTask() async {
+  Future<void> submitTask(BuildContext context) async {
     validateTaskForm();
     if (!state.isValid) {
       return;
@@ -99,11 +106,9 @@ class TaskNotifier extends StateNotifier<TaskState> {
         throw Exception("Ошибка при создании задачи: ${response.statusCode}");
       }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Ошибка при создании задачи: $e',
-        isErrorShown: false,
-      );
+      print('Ошибка при создании задачи: $e');
+      showGoToProfile('Для создания задачи необходимо заполнить профиль',
+          'Профиль не заполнен');
     }
   }
 
@@ -165,39 +170,6 @@ class TaskNotifier extends StateNotifier<TaskState> {
       isErrorShown: true, // Помечаем ошибку как обработанную
     );
   }
-
-//   Future<void> fetchTasks({String filters = 'tasks'}) async {
-//     state = state.copyWith(isLoading: true, errorMessage: null);
-
-//     try {
-//       // Передача query параметров
-//       final response = await DioConfig().dio.get(
-//         '/tasks',
-//         queryParameters: {
-//           'filters': filters, // Добавляем фильтры
-//         },
-//       );
-
-//       if (response.statusCode == 200) {
-//         final List<dynamic> tasks = response.data; // Список задач из ответа
-//         state = state.copyWith(
-//           isLoading: false,
-//           tasks: tasks, // Обновляем состояние задач
-//           errorMessage: null,
-//         );
-//       } else {
-//         state = state.copyWith(
-//           isLoading: false,
-//           errorMessage: 'Ошибка при получении задач',
-//         );
-//       }
-//     } catch (e) {
-//       state = state.copyWith(
-//         isLoading: false,
-//         errorMessage: 'Ошибка при получении задач: $e',
-//       );
-//     }
-//   }
 }
 
 final taskByIdProvider = FutureProvider.family<Map<String, dynamic>, String>(
@@ -275,7 +247,16 @@ final fetchTasksProvider =
   }
 });
 
+// final taskNotifierProvider =
+//     StateNotifierProvider<TaskNotifier, TaskState>((ref) {
+//   return TaskNotifier();
+// });
+
 final taskNotifierProvider =
     StateNotifierProvider<TaskNotifier, TaskState>((ref) {
-  return TaskNotifier();
+  return TaskNotifier(ref);
+});
+
+final taskRepositoryProvider = Provider<TaskRepository>((ref) {
+  return TaskRepository();
 });

@@ -1,4 +1,5 @@
 import 'package:app_build_freelance/router/app_router.gr.dart';
+import 'package:app_build_freelance/src/components/ui/Divider.dart';
 import 'package:app_build_freelance/src/layouts/empty_layout.dart';
 import 'package:app_build_freelance/src/components/ui/Btn.dart';
 import 'package:app_build_freelance/src/constants/app_colors.dart';
@@ -16,11 +17,11 @@ class ConfirmScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final authNotifier = ref.read(authProvider.notifier);
-WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (authState.codeSent == false && authState.error == null && !authState.isLoading) {
-        AutoRouter.of(context).replace(const TaskRoute()); // Перенаправление на нужный экран
-      }
-    });
+
+    // Проверяем, есть ли ошибка, связанная с неверным кодом
+    final bool hasOtpError =
+        authState.error != null && authState.error!.contains('Неверный код');
+
     return EmptyLayout(
       title: 'Ввод кода',
       body: Padding(
@@ -28,37 +29,51 @@ WidgetsBinding.instance.addPostFrameCallback((_) {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Поля для ввода OTP кода
             OtpTextField(
               filled: true,
               fillColor: AppColors.ulight,
               numberOfFields: 4,
-              borderColor: AppColors.border,
+              borderColor: hasOtpError ? Colors.red : AppColors.border,
               borderWidth: 1,
-              focusedBorderColor: AppColors.violet,
+              focusedBorderColor: hasOtpError ? Colors.red : AppColors.violet,
               showFieldAsBox: true,
               fieldWidth: 70,
               fieldHeight: 48,
-              onSubmit: (code) => authNotifier.verifyCode(code),
+              onSubmit: (code) async {
+                if (code.length == 4) {
+                  await authNotifier.verifyCode(code);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Введите полный код!')),
+                  );
+                }
+              },
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
             ),
             const SizedBox(height: 12),
-            if (authState.error != null)
+            // Сообщение об ошибке
+            if (hasOtpError)
               Text(
-                authState.error!,
+                authState.error ?? 'Произошла ошибка',
                 style: const TextStyle(color: Colors.red),
               ),
             const SizedBox(height: 12),
-            if (!authState.codeSent)
-              Text(
-                'Вы сможете запросить код через ${authNotifier.remainingSeconds} секунд',
-                style: const TextStyle(color: Colors.grey),
-              ),
-            if (authState.codeSent)
-              Btn(
-                text: 'Выслать код ещё раз',
-                theme: 'white',
-                onPressed: authNotifier.resendCode,
-              ),
+            // Таймер для запроса нового кода
+            Text(
+              'Вы сможете запросить код через ${authNotifier.remainingSeconds} секунд',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 12),
+            // Кнопка для повторной отправки кода
+            Btn(
+              disabled: authNotifier.remainingSeconds > 0,
+              text: 'Выслать код ещё раз',
+              theme: 'violet',
+              onPressed: authNotifier.remainingSeconds > 0
+                  ? null
+                  : authNotifier.resendCode,
+            ),
           ],
         ),
       ),

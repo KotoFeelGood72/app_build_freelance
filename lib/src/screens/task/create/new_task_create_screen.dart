@@ -47,7 +47,9 @@ class _NewTaskCreateScreenState extends ConsumerState<NewTaskCreateScreen> {
     });
 
     _nameController.addListener(() {
-      ref.read(taskNotifierProvider.notifier).updateTaskName(_nameController.text);
+      ref
+          .read(taskNotifierProvider.notifier)
+          .updateTaskName(_nameController.text);
     });
 
     _priceController.addListener(() {
@@ -133,7 +135,8 @@ class _NewTaskCreateScreenState extends ConsumerState<NewTaskCreateScreen> {
   }
 
   void _openLocationPicker() async {
-    final initialLocation = _selectedLocation ?? LatLng(55.7558, 37.6173); // Москва по умолчанию
+    final initialLocation = _selectedLocation ??
+        const LatLng(55.7558, 37.6173); // Москва по умолчанию
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => LocationPickerMap(
@@ -159,6 +162,7 @@ class _NewTaskCreateScreenState extends ConsumerState<NewTaskCreateScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: AppColors.bg,
           title: const Text(
             "Новое задание",
             style: TextStyle(fontWeight: FontWeight.bold),
@@ -169,7 +173,6 @@ class _NewTaskCreateScreenState extends ConsumerState<NewTaskCreateScreen> {
           builder: (context, ref, child) {
             final taskState = ref.watch(taskNotifierProvider);
 
-            // Показываем ошибки через Snackbar
             if (taskState.errorMessage != null && !taskState.isErrorShown) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (ScaffoldMessenger.of(context).mounted) {
@@ -200,7 +203,7 @@ class _NewTaskCreateScreenState extends ConsumerState<NewTaskCreateScreen> {
                         horizontal: 16,
                       ),
                     ),
-                    Square(),
+                    const Square(),
 
                     // Поле для стоимости
                     Inputs(
@@ -216,20 +219,23 @@ class _NewTaskCreateScreenState extends ConsumerState<NewTaskCreateScreen> {
                         horizontal: 16,
                       ),
                     ),
-                    Square(),
+                    const Square(),
 
                     // Выбор даты
                     PickDate(
-                      initialDate: taskState.taskTerm ?? DateTime.now(), // Берем дату из состояния
+                      initialDate: taskState.taskTerm ??
+                          DateTime.now(), // Берем дату из состояния
                       onDatePicked: (DateTime date) {
-                        ref.read(taskNotifierProvider.notifier).updateTaskTerm(date); // Обновляем состояние
+                        ref
+                            .read(taskNotifierProvider.notifier)
+                            .updateTaskTerm(date); // Обновляем состояние
                       },
                     ),
-                    Square(),
+                    const Square(),
 
                     // Локация
                     const Text("Локация", style: TextStyle(fontSize: 16)),
-                    Square(height: 8),
+                    const Square(height: 8),
                     GestureDetector(
                       onTap: _openLocationPicker,
                       child: Container(
@@ -243,7 +249,7 @@ class _NewTaskCreateScreenState extends ConsumerState<NewTaskCreateScreen> {
                           children: [
                             Text(
                               _selectedAddress ?? "Определение адреса...",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: AppColors.gray,
                                 fontSize: 16,
                               ),
@@ -256,7 +262,7 @@ class _NewTaskCreateScreenState extends ConsumerState<NewTaskCreateScreen> {
                         ),
                       ),
                     ),
-                    Square(),
+                    const Square(),
 
                     // Кнопка продолжения
                     SizedBox(
@@ -264,11 +270,13 @@ class _NewTaskCreateScreenState extends ConsumerState<NewTaskCreateScreen> {
                       child: Btn(
                         text: 'Продолжить',
                         onPressed: () {
-                          ref.read(taskNotifierProvider.notifier).validateTaskForm();
+                          ref
+                              .read(taskNotifierProvider.notifier)
+                              .validateTaskForm();
                           final currentState = ref.read(taskNotifierProvider);
 
                           if (currentState.isValid) {
-                            AutoRouter.of(context).push(NewDescRoute());
+                            AutoRouter.of(context).push(const NewDescRoute());
                           }
                         },
                         theme: 'violet',

@@ -1,8 +1,8 @@
+import 'package:app_build_freelance/providers/user_providers.dart';
 import 'package:app_build_freelance/src/components/ui/Divider.dart';
 import 'package:app_build_freelance/src/components/ui/avatar_img.dart';
 import 'package:app_build_freelance/src/components/ui/info_row.dart';
 import 'package:app_build_freelance/src/constants/app_colors.dart';
-import 'package:app_build_freelance/src/provider/UserNotifier.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,9 +17,14 @@ class TaskCustomerProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final profile = ref.watch(loadUserProvider(taskId));
+    final userNotifier = ref.read(userProvider.notifier);
+    final userState = ref.watch(userProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      userNotifier.loadUserCustomer(profileCustomerId.toString());
+    });
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Профиль')),
+      appBar: AppBar(title: Text('Профиль $profileCustomerId')),
       body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: const BoxDecoration(

@@ -25,13 +25,13 @@ class TaskScreen extends ConsumerWidget {
     // Фильтры задач
     final filters = role == 'Executor'
         ? [
-            {'filter': 'new'},
-            {'filter': 'open'},
-            {'filter': 'history'},
+            {'filters': 'tasks'},
+            {'filters': 'open'},
+            {'filters': 'history'},
           ]
         : [
-            {'filter': 'tasks'},
-            {'filter': 'history'},
+            {'filters': 'tasks'},
+            {'filters': 'history'},
           ];
 
     final selectedTabIndex = ref.watch(selectedTabIndexProvider);
@@ -41,13 +41,14 @@ class TaskScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Задания',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        title: Text(
+          'Задания $role',
+          style:
+              const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         actions: [
-          if (role != 'Executor') // Кнопка добавления задачи для заказчиков
+          if (role != 'Executor')
             IconButton(
               icon: const Icon(Icons.add, color: Colors.black),
               onPressed: () {
@@ -70,7 +71,6 @@ class TaskScreen extends ConsumerWidget {
                   return Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        // Переключение вкладки
                         ref.read(selectedTabIndexProvider.notifier).state =
                             index;
                       },
@@ -104,18 +104,24 @@ class TaskScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
+          print("Refresh triggered");
           final currentFilter = filters[selectedTabIndex];
           await ref.refresh(fetchTasksProvider(currentFilter).future);
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: TaskList(
-            filter: filters[selectedTabIndex],
+            filters: filters[selectedTabIndex],
             onTaskTap: (task) {
               if (role == 'Executor') {
-                AutoRouter.of(context).push(
-                  TaskDetailRoute(taskId: task['id'].toString()),
-                );
+                if (selectedTabIndex == 1) {
+                  AutoRouter.of(context).push(ChatsRoute(
+                      chatsId: task['roomUUID'],
+                      taskId: task['id'].toString()));
+                } else {
+                  AutoRouter.of(context)
+                      .push(TaskDetailRoute(taskId: task['id'].toString()));
+                }
               } else {
                 AutoRouter.of(context).push(
                   TaskResponseRoute(taskId: task['id'].toString()),

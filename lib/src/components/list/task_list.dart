@@ -6,24 +6,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TaskList extends ConsumerWidget {
-  final Map<String, dynamic> filter;
+  final Map<String, dynamic> filters;
   final Function(Map<String, dynamic>)? onTaskTap;
 
   const TaskList({
     super.key,
-    required this.filter,
+    required this.filters,
     this.onTaskTap,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final taskListAsyncValue = ref.watch(fetchTasksProvider(filter));
+    final taskListAsyncValue = ref.watch(fetchTasksProvider(filters));
 
     return taskListAsyncValue.when(
       data: (tasks) {
-        // Если задачи успешно загружены
         if (tasks.isEmpty) {
-          return const CustomersNoneTasks();
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height - 250,
+              child: const CustomersNoneTasks(),
+            ),
+          );
         }
 
         return ListView.builder(
@@ -47,12 +52,7 @@ class TaskList extends ConsumerWidget {
       loading: () => const Center(
         child: CircularProgressIndicator(),
       ),
-      error: (error, stackTrace) => Center(
-        child: Text(
-          'Ошибка при загрузке задач: $error',
-          style: const TextStyle(color: Colors.red),
-        ),
-      ),
+      error: (error, stackTrace) => const Center(child: CustomersNoneTasks()),
     );
   }
 }

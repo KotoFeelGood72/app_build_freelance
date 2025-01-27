@@ -56,8 +56,8 @@ class WelcomeScreen extends ConsumerWidget {
                       text: 'Найти исполнителя',
                       theme: 'violet',
                       onPressed: () {
-                        authNotifier.setRole('Customer'); // Устанавливаем роль Customer
-                        AutoRouter.of(context).push(const SignInRoute());
+                        authNotifier.setRole('Customer');
+                        AutoRouter.of(context).push(const AuthRoute());
                       },
                     ),
                   ),
@@ -68,8 +68,8 @@ class WelcomeScreen extends ConsumerWidget {
                       text: 'Стать исполнителем',
                       theme: 'light',
                       onPressed: () {
-                        authNotifier.setRole('Executor'); // Устанавливаем роль Executor
-                        AutoRouter.of(context).push(const SignUpRoute());
+                        authNotifier.setRole('Executor');
+                        AutoRouter.of(context).push(const AuthRoute());
                       },
                     ),
                   ),
@@ -82,7 +82,7 @@ class WelcomeScreen extends ConsumerWidget {
                 text: 'Войти в аккаунт',
                 theme: 'white',
                 onPressed: () {
-                  AutoRouter.of(context).push(const SignInRoute());
+                  AutoRouter.of(context).push(const AuthRoute());
                 },
               ),
             ),

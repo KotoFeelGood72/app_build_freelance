@@ -1,15 +1,15 @@
-import 'package:app_build_freelance/router/app_router.gr.dart';
+import 'package:app_build_freelance/config/navigatorHelper.dart';
 import 'package:app_build_freelance/src/repositories/auth/auth_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:talker/talker.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:talker_flutter/talker_flutter.dart';
-import 'package:auto_route/auto_route.dart';
 import 'token_storage.dart';
 
 final talker = TalkerFlutter.init();
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 class DioConfig {
   static final DioConfig _instance = DioConfig._internal();
@@ -35,8 +35,8 @@ class DioConfig {
     dio = Dio(
       BaseOptions(
         baseUrl: dotenv.env['API_URL'] ?? '',
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 3),
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
         validateStatus: (status) =>
             status != null &&
             (status >= 200 && status < 300 ||
@@ -52,191 +52,116 @@ class DioConfig {
       'Accept': 'application/json',
     };
 
-    // Добавляем перехватчики
     dio.interceptors.addAll([
-      InterceptorsWrapper(onRequest: (options, handler) async {
-        final token = await TokenStorage.getToken();
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await TokenStorage.getToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
 
-        final customContentType = options.extra['contentType'] as String?;
-        if (customContentType != null) {
-          options.headers['Content-Type'] = customContentType;
-        }
+          // Добавляем пользовательский заголовок для токен-запросов
+          if (options.path.contains('refresh_token')) {
+            options.extra['isRefreshTokenRequest'] = true;
+          }
 
-        // Проверка на FormData
-        if (options.data is FormData) {
-          print('[DIO LOG] FormData скрыто из логов');
-          options.extra['skipLog'] = true; // Отмечаем, что не нужно логировать
-        }
+          handler.next(options);
+        },
+        onResponse: (response, handler) async {
+          if (response.statusCode == 401 &&
+              response.requestOptions.extra['isRefreshTokenRequest'] != true) {
+            // print('[DEBUG] Unauthorized (401) detected');
+            final isRefreshed = await _handleTokenRefresh();
 
-        return handler.next(options);
-      }, onResponse: (response, handler) async {
-        if (response.statusCode == 401) {
-          print('[DEBUG] Unauthorized (401) detected');
-
-          // Пытаемся обновить токен
-          final isRefreshed =
-              await _handleTokenRefresh(response.requestOptions);
-
-          if (isRefreshed) {
-            try {
-              // Если токен обновлен, повторяем запрос
-              final retryResponse =
-                  await _retryRequest(response.requestOptions);
-              return handler
-                  .resolve(retryResponse); // Успешно завершаем обработку
-            } catch (retryError) {
-              print('[DEBUG] Ошибка при повторном запросе: $retryError');
-              return handler.reject(DioException(
-                requestOptions: response.requestOptions,
-                response: response,
-                type: DioExceptionType.badResponse,
-                error: 'Ошибка при повторном запросе',
-              ));
+            if (isRefreshed) {
+              // Повторяем оригинальный запрос
+              final dio = DioConfig().dio;
+              final retryResponse = await dio.request(
+                response.requestOptions.path,
+                options: Options(
+                  method: response.requestOptions.method,
+                  headers: response.requestOptions.headers,
+                ),
+                data: response.requestOptions.data,
+                queryParameters: response.requestOptions.queryParameters,
+              );
+              return handler.resolve(retryResponse);
+            } else {
+              NavigatorHelper.redirectToLogin();
+              return handler.reject(
+                DioException(
+                  requestOptions: response.requestOptions,
+                  type: DioExceptionType.badResponse,
+                  error: 'Требуется повторный вход',
+                ),
+              );
             }
-          } else {
-            // Если не удалось обновить токен, редиректим на страницу входа
-            _redirectToLogin();
-            return handler.reject(DioException(
-              requestOptions: response.requestOptions,
-              response: response,
-              type: DioExceptionType.badResponse,
-              error: 'Требуется повторный вход',
-            ));
           }
-        }
 
-        // Если статус не 401, продолжаем обработку
-        handler.next(response);
-      }, onError: (DioException e, handler) async {
-        print(
-            'Ошибка запроса: ${e.type}, Код ответа: ${e.response?.statusCode}');
-        String errorMessage;
+          handler.next(response);
+        },
+        onError: (DioException e, handler) async {
+          if (e.response?.statusCode == 401 &&
+              e.requestOptions.extra['isRefreshTokenRequest'] != true) {
+            // print('[DEBUG] Unauthorized (401) detected in onError');
+            final isRefreshed = await _handleTokenRefresh();
 
-        // Проверка типа ошибки
-        if (e.type == DioExceptionType.connectionTimeout) {
-          errorMessage =
-              'Время ожидания соединения истекло. Проверьте подключение.';
-        } else if (e.type == DioExceptionType.receiveTimeout) {
-          errorMessage = 'Время ожидания ответа от сервера истекло.';
-        } else if (e.type == DioExceptionType.sendTimeout) {
-          errorMessage = 'Время отправки запроса истекло.';
-        } else if (e.type == DioExceptionType.badCertificate) {
-          errorMessage = 'Ошибка сертификата безопасности.';
-        } else if (e.type == DioExceptionType.connectionError) {
-          errorMessage = 'Проблема с подключением. Проверьте интернет.';
-        } else if (e.response != null) {
-          // Обработка HTTP-ответов
-          switch (e.response?.statusCode) {
-            case 400:
-              errorMessage = 'Некорректный запрос. Проверьте введенные данные.';
-              break;
-            case 401:
-              errorMessage = 'Сессия истекла. Пожалуйста, войдите снова.';
-              final isRefreshed = await _handleTokenRefresh(e.requestOptions);
-              if (isRefreshed) {
-                try {
-                  final retryRequest = await _retryRequest(e.requestOptions);
-                  return handler.resolve(retryRequest);
-                } catch (retryError) {
-                  errorMessage = 'Ошибка при повторном запросе.';
-                }
-              } else {
-                _redirectToLogin();
-                errorMessage =
-                    'Не удалось обновить токен. Перейдите на страницу входа.';
-              }
-              break;
-            case 403:
-              errorMessage = 'Доступ запрещен. Проверьте свои права.';
-              break;
-            case 404:
-              errorMessage = 'Ресурс не найден. Проверьте URL.';
-              break;
-            case 500:
-              errorMessage =
-                  'Ошибка сервера (500). Пожалуйста, повторите попытку позже.';
-              break;
-            default:
-              errorMessage = 'Неизвестная ошибка: ${e.response?.statusCode}';
+            if (isRefreshed) {
+              // Повторяем оригинальный запрос
+              final dio = DioConfig().dio;
+              final retryResponse = await dio.request(
+                e.requestOptions.path,
+                options: Options(
+                  method: e.requestOptions.method,
+                  headers: e.requestOptions.headers,
+                ),
+                data: e.requestOptions.data,
+                queryParameters: e.requestOptions.queryParameters,
+              );
+              return handler.resolve(retryResponse);
+            } else {
+              NavigatorHelper.redirectToLogin();
+              return handler.reject(
+                DioException(
+                  requestOptions: e.requestOptions,
+                  type: DioExceptionType.badResponse,
+                  error: 'Требуется повторный вход',
+                ),
+              );
+            }
           }
-        } else {
-          // Обработка других ошибок
-          errorMessage =
-              'Произошла неизвестная ошибка. Повторите попытку позже.';
-        }
 
-        // Логирование ошибки
-        print('[Ошибка] $errorMessage');
-        _showSnackBar(errorMessage); // Показываем пользователю уведомление
-        handler.next(e); // Продолжаем обработку ошибки
-      }),
-      talkerDioLogger, // Логгер запросов
+          handler.next(e);
+        },
+      ),
+      talkerDioLogger,
     ]);
   }
 
-  // Метод для обновления токена
-  static Future<bool> _handleTokenRefresh(RequestOptions requestOptions) async {
+  static Future<bool> _handleTokenRefresh() async {
     try {
       final refreshToken = await TokenStorage.getRefreshToken();
-      if (refreshToken == null) return false;
+      if (refreshToken == null) {
+        NavigatorHelper.redirectToLogin();
+        return false;
+      }
 
       final newTokens = await AuthRepository().refreshAccessToken(refreshToken);
-      await TokenStorage.saveToken(newTokens['accessToken']!);
-      await TokenStorage.saveRefreshToken(newTokens['refreshToken']!);
-      return true;
+
+      if (newTokens.containsKey('accessToken') &&
+          newTokens.containsKey('refreshToken')) {
+        await TokenStorage.saveToken(newTokens['accessToken']!);
+        await TokenStorage.saveRefreshToken(newTokens['refreshToken']!);
+        return true;
+      } else {
+        TokenStorage.deleteTokens();
+        NavigatorHelper.redirectToLogin();
+        return false;
+      }
     } catch (e) {
-      print('Token refresh failed: $e');
+      // print('Ошибка при обновлении токена: $e');
+      NavigatorHelper.redirectToLogin();
       return false;
     }
   }
-
-  // Метод для повторного выполнения запроса
-  static Future<Response> _retryRequest(RequestOptions requestOptions) async {
-    final dio = DioConfig().dio;
-    try {
-      return await dio.request(
-        requestOptions.path,
-        options: Options(
-          method: requestOptions.method,
-          headers: requestOptions.headers,
-        ),
-        data: requestOptions.data,
-        queryParameters: requestOptions.queryParameters,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  // Метод для редиректа на страницу входа
-  static void _redirectToLogin() {
-    final context = globalNavigatorKey.currentContext;
-    if (context != null) {
-      AutoRouter.of(context).replace(const WelcomeRoute());
-    }
-  }
-
-  // Метод для показа SnackBar
-  static void _showSnackBar(String message) {
-    final context = globalNavigatorKey.currentContext;
-    if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          duration: const Duration(seconds: 3),
-          action: SnackBarAction(
-            label: 'Закрыть',
-            onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar,
-          ),
-        ),
-      );
-    }
-  }
 }
-
-// Глобальный navigatorKey для доступа к текущему контексту
-final GlobalKey<NavigatorState> globalNavigatorKey =
-    GlobalKey<NavigatorState>();

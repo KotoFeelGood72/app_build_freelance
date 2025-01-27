@@ -1,4 +1,8 @@
+import 'package:app_build_freelance/src/components/ui/Btn.dart';
+import 'package:app_build_freelance/src/components/ui/Divider.dart';
+import 'package:app_build_freelance/src/constants/app_colors.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()
@@ -20,26 +24,23 @@ class _ProfileNoteScreenState extends State<ProfileNoteScreen> {
         title: const Text('Уведомления'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SwitchListTile(
-              title: const Text('В списке кандидатов'),
+            _buildSwitchTile(
+              title: 'В списке кандидатов',
               value: isCandidateEnabled,
-              onChanged: (bool value) {
+              onChanged: (value) {
                 setState(() {
                   isCandidateEnabled = value;
                 });
               },
             ),
-            SwitchListTile(
-              title: const Text(
-                'Задание в моём городе',
-                style: TextStyle(color: Colors.grey),
-              ),
+            _buildSwitchTile(
+              title: 'Задание в моём городе',
               value: isCityTaskEnabled,
-              onChanged: (bool value) {
+              onChanged: (value) {
                 setState(() {
                   isCityTaskEnabled = value;
                 });
@@ -48,23 +49,59 @@ class _ProfileNoteScreenState extends State<ProfileNoteScreen> {
             const SizedBox(height: 16),
             const Text(
               'Включите push-уведомления, чтобы узнавать о новых событиях',
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            Center(
-              child: TextButton(
+            SizedBox(
+              width: double.infinity,
+              child: Btn(
+                text: 'Настроить уведомления',
                 onPressed: () {
                   // Логика для настройки уведомлений
                 },
-                child: const Text(
-                  'Настроить уведомления',
-                  style: TextStyle(color: Colors.blue, fontSize: 16),
-                ),
+                theme: 'light',
+                textColor: AppColors.violet,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Color(0xFFDDDDDD), width: 0.5),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              color:
+                  value ? Colors.black : Colors.grey, // Изменение цвета текста
+            ),
+          ),
+          CupertinoSwitch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Colors.green,
+          ),
+        ],
       ),
     );
   }

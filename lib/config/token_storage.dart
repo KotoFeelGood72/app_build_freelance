@@ -5,7 +5,7 @@ class TokenStorage {
 
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
-  static const String _roleKey = 'user_role';
+  static const String _roleKey = 'Executor';
 
   // Сохранение access токена
   static Future<void> saveToken(String accessToken) async {
@@ -34,7 +34,11 @@ class TokenStorage {
 
   // Получение refresh токена
   static Future<String?> getRefreshToken() async {
-    return await _storage.read(key: _refreshTokenKey);
+    final token = await _storage.read(key: _refreshTokenKey);
+    if (token == null) {
+      // print('[DEBUG] Refresh token отсутствует');
+    }
+    return token;
   }
 
   // Удаление токенов при выходе из системы

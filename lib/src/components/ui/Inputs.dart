@@ -17,6 +17,8 @@ class Inputs extends StatelessWidget {
   final EdgeInsetsGeometry padding; // Новый параметр для отступов
   final int? maxLength; // Новый параметр для ограничения символов
   final bool isMultiline; // Новый параметр для многострочного текста
+  final ValueChanged<String>?
+      onChanged; // Новый параметр для обработки изменений
 
   const Inputs({
     super.key,
@@ -30,10 +32,10 @@ class Inputs extends StatelessWidget {
     this.fieldType = 'text',
     this.label,
     this.required = false,
-    this.padding = const EdgeInsets.symmetric(
-        horizontal: 16, vertical: 4), // Значение по умолчанию
-    this.maxLength, // Передача максимальной длины
-    this.isMultiline = false, // Значение по умолчанию: однострочный ввод
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    this.maxLength,
+    this.isMultiline = false,
+    this.onChanged, // Добавляем onChanged
   });
 
   @override
@@ -133,6 +135,7 @@ class Inputs extends StatelessWidget {
                         TextStyle(color: appliedTextColor.withOpacity(0.6)),
                     border: InputBorder.none,
                   ),
+                  onChanged: onChanged, // Вызываем переданную функцию
                 ),
               ),
               if (rightIcon != null)

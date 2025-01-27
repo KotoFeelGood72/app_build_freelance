@@ -4,8 +4,8 @@ import 'package:app_build_freelance/config/token_storage.dart';
 import 'package:app_build_freelance/router/app_router.dart';
 import 'package:app_build_freelance/router/app_router.gr.dart';
 import 'package:app_build_freelance/src/repositories/auth/auth_repository.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 
 class AuthState {
   final bool isLoading;
@@ -22,7 +22,6 @@ class AuthState {
     this.phoneNumber,
   });
 
-  // Создаём копию состояния с изменёнными полями (immutability)
   AuthState copyWith({
     bool? isLoading,
     String? error,
@@ -33,7 +32,7 @@ class AuthState {
     return AuthState(
       role: role ?? this.role,
       isLoading: isLoading ?? this.isLoading,
-      error: error,
+      error: error ?? this.error,
       codeSent: codeSent ?? this.codeSent,
       phoneNumber: phoneNumber ?? this.phoneNumber,
     );
@@ -44,6 +43,7 @@ class AuthNotifier extends Notifier<AuthState> {
   late final AuthRepository _authRepository;
   Timer? _timer;
   int remainingSeconds = 60;
+  final AppRouter _router = GetIt.I<AppRouter>();
 
   @override
   AuthState build() {
@@ -63,12 +63,14 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(phoneNumber: phoneNumber);
   }
 
-  // Новый метод для смены роли
   Future<void> updateRole(String newRole) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      await _authRepository.updateRole(newRole); // Логика репозитория
-      await TokenStorage.saveRole(newRole); // Сохраняем роль
+      final response = await _authRepository.updateRole(newRole);
+      await TokenStorage.saveRole(newRole);
+      await TokenStorage.saveToken(response['access_token']!);
+      await TokenStorage.saveRefreshToken(response['refresh_token']!);
+      // print('tokens $response');
       state = state.copyWith(isLoading: false, role: newRole);
     } catch (e) {
       state = state.copyWith(
@@ -91,7 +93,7 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(isLoading: false, codeSent: true);
       startTimer();
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: 'Ошибка');
     }
   }
 
@@ -104,7 +106,11 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       await _authRepository.verifyCode(code);
-      state = state.copyWith(isLoading: false, error: null, codeSent: false);
+      state =
+          state.copyWith(isLoading: false, error: 'Ошибка', codeSent: false);
+
+      clearPhoneNumber();
+      _router.replaceAll([const TaskRoute()]);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -119,7 +125,7 @@ class AuthNotifier extends Notifier<AuthState> {
       return;
     }
 
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, error: 'Ошибка');
     try {
       await _authRepository.sendPhoneNumber(phoneNumber, role!);
       state = state.copyWith(isLoading: false, codeSent: true);
@@ -135,34 +141,27 @@ class AuthNotifier extends Notifier<AuthState> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remainingSeconds > 0) {
         remainingSeconds--;
+        state = state.copyWith();
       } else {
         timer.cancel();
-        state = state.copyWith(error: 'Можете запросить код ещё раз.');
+        state = state.copyWith(error: null);
       }
     });
   }
 
   void setRole(String role) {
     state = state.copyWith(role: role);
-    TokenStorage.saveRole(role); // Сохраняем роль при установке
+    TokenStorage.saveRole(role);
   }
-
-  final autoRouterProvider = Provider<StackRouter>((ref) {
-    return AppRouter();
-  });
 
   Future<void> onSignOut() async {
     try {
       await _authRepository.logout();
 
-      state = const AuthState(); // Сбрасываем состояние
-      print('Ошибка при выходе: ');
-      // Перенаправляем на WelcomeRoute
-      final router = ref.read(autoRouterProvider);
-      router.replaceAll([const WelcomeRoute()]);
+      state = const AuthState();
+      _router.replaceAll([const WelcomeRoute()]);
     } catch (e, stacktrace) {
-      print('Ошибка при выходе: $e');
-      print(stacktrace);
+      // print('Ошибка при выходе: $e');
       state = state.copyWith(error: 'Ошибка выхода: ${e.toString()}');
     }
   }
@@ -171,14 +170,14 @@ class AuthNotifier extends Notifier<AuthState> {
   void dispose() {
     _timer?.cancel();
   }
+
+  void clearPhoneNumber() {
+    state = state.copyWith(phoneNumber: null);
+  }
 }
 
-final autoRouterProvider = Provider<AutoRouter>((ref) => const AutoRouter());
-
-// Провайдер для AuthNotifier
 final authProvider =
     NotifierProvider<AuthNotifier, AuthState>(() => AuthNotifier());
 
-// Репозиторий
 final authRepositoryProvider =
     Provider<AuthRepository>((ref) => AuthRepository());

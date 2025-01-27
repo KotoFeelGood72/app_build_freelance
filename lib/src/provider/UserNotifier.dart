@@ -48,14 +48,14 @@ class UserNotifier extends StateNotifier<UserState> {
             errorMessage: 'Ошибка: ${response.statusCode}, ${response.data}');
       }
     } on DioException catch (e) {
-      print('[DioError] Ошибка при запросе: ${e.message}');
+      // print('[DioError] Ошибка при запросе: ${e.message}');
       if (e.response != null) {
-        print(
-            '[DioError] Ответ сервера: ${e.response?.statusCode}, ${e.response?.data}');
+        // print(
+        //     '[DioError] Ответ сервера: ${e.response?.statusCode}, ${e.response?.data}');
       }
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
-      print('[Ошибка] Неизвестная ошибка: $e');
+      // print('[Ошибка] Неизвестная ошибка: $e');
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }

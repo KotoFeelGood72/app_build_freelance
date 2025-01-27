@@ -36,7 +36,7 @@ class NewConfirmTaskScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(taskState.successMessage!)),
         );
-        // AutoRouter.of(context).push(const TaskRoute());
+        AutoRouter.of(context).push(const TaskRoute());
       });
     }
 
@@ -136,7 +136,8 @@ class NewConfirmTaskScreen extends ConsumerWidget {
               child: Btn(
                 text: 'Разместить задание',
                 onPressed: () {
-                  taskNotifier.submitTask();
+                  taskNotifier.submitTask(context);
+                  AutoRouter.of(context).replaceAll([const TaskRoute()]);
                 },
                 theme: 'violet',
               ),

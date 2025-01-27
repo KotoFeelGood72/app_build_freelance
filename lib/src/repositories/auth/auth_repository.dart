@@ -7,10 +7,7 @@ class AuthRepository {
     try {
       final response = await DioConfig().dio.post(
         '/auth',
-        data: {
-          'phoneNumber': phoneNumber,
-          'role': role
-        },
+        data: {'phoneNumber': phoneNumber, 'role': role},
       );
       print('Phone number sent: ${response.statusCode}');
     } catch (e) {
@@ -19,16 +16,13 @@ class AuthRepository {
     }
   }
 
-  Future<void> updateRole(String role) async {
+  Future<Map<String, dynamic>> updateRole(String role) async {
     try {
       final response = await DioConfig().dio.post(
         '/update_role',
         data: {'role': role},
       );
-
-      if (response.statusCode != 200) {
-        throw Exception('Ошибка смены роли: ${response.statusCode}');
-      }
+      return response.data as Map<String, dynamic>;
     } catch (e) {
       throw Exception('Ошибка смены роли: ${e.toString()}');
     }
@@ -45,7 +39,7 @@ class AuthRepository {
       );
       final accessToken = response.data['access_token'];
       final refreshToken = response.data['refresh_token'];
-      
+
       // Сохраняем токены в TokenStorage
       await TokenStorage.saveToken(accessToken);
       await TokenStorage.saveRefreshToken(refreshToken);
@@ -55,13 +49,14 @@ class AuthRepository {
         'refreshToken': refreshToken,
       };
     } catch (e) {
-      print('Error verifying code: $e');
+      // print('Error verifying code: $e');
       rethrow;
     }
   }
 
   // Запрос для обновления access токена с использованием refresh токена
-  Future<Map<String, String>> refreshAccessToken(String refreshTokenBody) async {
+  Future<Map<String, String>> refreshAccessToken(
+      String refreshTokenBody) async {
     try {
       final response = await DioConfig().dio.post(
         '/refresh_token',
@@ -82,7 +77,7 @@ class AuthRepository {
         'refreshToken': refreshToken,
       };
     } catch (e) {
-      print('Error refreshing token: $e');
+      // print('Error refreshing token: $e');
       rethrow;
     }
   }
@@ -90,8 +85,6 @@ class AuthRepository {
   Future<void> logout() async {
     try {
       await TokenStorage.deleteTokens();
-    } catch (e) {
-      
-    }
+    } catch (e) {}
   }
 }

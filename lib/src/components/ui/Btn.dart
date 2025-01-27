@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class Btn extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final String theme;
   final Color? textColor;
   final double borderRadius;
@@ -13,7 +13,7 @@ class Btn extends StatelessWidget {
   const Btn({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,
     this.theme = 'yellow',
     this.textColor,
     this.borderRadius = 100.0,
