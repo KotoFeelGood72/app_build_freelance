@@ -159,7 +159,6 @@ class DioConfig {
         return false;
       }
     } catch (e) {
-      // print('Ошибка при обновлении токена: $e');
       NavigatorHelper.redirectToLogin();
       return false;
     }

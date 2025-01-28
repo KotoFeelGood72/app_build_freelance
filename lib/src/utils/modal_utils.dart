@@ -7,12 +7,14 @@ Future<T?> showCustomModalBottomSheet<T>({
   required WidgetBuilder builder,
   bool isDismissible = true,
   bool enableDrag = true,
+  bool scroll = false,
 }) {
   return showModalBottomSheet<T>(
     context: context,
     isDismissible: isDismissible,
     enableDrag: enableDrag,
     backgroundColor: AppColors.bg,
+    isScrollControlled: scroll,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(16.0), // Скругленные углы
