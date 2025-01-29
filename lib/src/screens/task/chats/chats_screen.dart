@@ -31,7 +31,8 @@ class ChatsScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.info_outline_rounded),
             onPressed: () {
-              AutoRouter.of(context).push(TaskDetailRoute(taskId: taskId));
+              AutoRouter.of(context)
+                  .push(TaskDetailCustomerRoute(taskId: taskId));
             },
           ),
         ],

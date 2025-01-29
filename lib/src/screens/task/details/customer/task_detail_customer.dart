@@ -192,6 +192,9 @@ void _openResponseModal(BuildContext context, WidgetRef ref, String taskId) {
                 ),
               ],
             ),
+            const Square(
+              height: 32,
+            ),
           ],
         ),
       );

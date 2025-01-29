@@ -1,4 +1,4 @@
-package com.work.app_build_freelance
+package com.work.freelance
 
 import io.flutter.embedding.android.FlutterActivity
 

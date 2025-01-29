@@ -1,5 +1,6 @@
 import 'package:app_build_freelance/router/app_router.gr.dart';
 import 'package:app_build_freelance/src/components/ui/Btn.dart';
+import 'package:app_build_freelance/src/components/ui/Divider.dart';
 import 'package:app_build_freelance/src/components/ui/Inputs.dart';
 import 'package:app_build_freelance/src/constants/app_colors.dart';
 import 'package:app_build_freelance/src/provider/consumer/TaskNotifier.dart';
@@ -86,6 +87,7 @@ void openResponseModal(BuildContext context, WidgetRef ref, String taskId) {
                   ),
                 ],
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
